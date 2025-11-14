@@ -1,0 +1,59 @@
+{
+  "a7f3b2c8d1e4f5a6b7c8d9e0f1a2b3c4": [
+    {
+      "rev_id": "a7f3b2c8d1e4f5a6b7c8d9e0f1a2b3c4",
+      "type": "QES",
+      "signer": "Dr. Maria Schmidt (Board Chair)",
+      "time": "2025-01-15T14:45:00Z",
+      "evidence_uri": "https://example.com/qes/maria-schmidt-20250115"
+    },
+    {
+      "rev_id": "a7f3b2c8d1e4f5a6b7c8d9e0f1a2b3c4",
+      "type": "QES",
+      "signer": "Thomas Müller (Board Member)",
+      "time": "2025-01-15T15:10:00Z",
+      "evidence_uri": "https://example.com/qes/thomas-mueller-20250115"
+    }
+  ],
+  "b6e2a1d0c9b8a7f6e5d4c3b2a1f0e9d8": [
+    {
+      "rev_id": "b6e2a1d0c9b8a7f6e5d4c3b2a1f0e9d8",
+      "type": "sigstore",
+      "signer": "Dr. Maria Schmidt (Board Chair)",
+      "time": "2024-11-20T10:30:00Z",
+      "evidence_uri": "https://example.com/sigstore/maria-schmidt-20241120"
+    }
+  ],
+  "c5d1b0a9f8e7d6c5b4a3f2e1d0c9b8a7": [
+    {
+      "rev_id": "c5d1b0a9f8e7d6c5b4a3f2e1d0c9b8a7",
+      "type": "QES",
+      "signer": "Dr. Maria Schmidt (Board Chair)",
+      "time": "2024-09-10T17:00:00Z",
+      "evidence_uri": "https://example.com/qes/maria-schmidt-20240910"
+    },
+    {
+      "rev_id": "c5d1b0a9f8e7d6c5b4a3f2e1d0c9b8a7",
+      "type": "QES",
+      "signer": "Thomas Müller (Board Member)",
+      "time": "2024-09-10T17:15:00Z",
+      "evidence_uri": "https://example.com/qes/thomas-mueller-20240910"
+    },
+    {
+      "rev_id": "c5d1b0a9f8e7d6c5b4a3f2e1d0c9b8a7",
+      "type": "QES",
+      "signer": "Anna Weber (Board Member)",
+      "time": "2024-09-10T17:30:00Z",
+      "evidence_uri": "https://example.com/qes/anna-weber-20240910"
+    }
+  ],
+  "d4c0a8b7f6e5d4c3b2a1f0e9d8c7b6a5": [
+    {
+      "rev_id": "d4c0a8b7f6e5d4c3b2a1f0e9d8c7b6a5",
+      "type": "QES",
+      "signer": "Founder Team",
+      "time": "2024-06-01T09:30:00Z",
+      "evidence_uri": "https://example.com/qes/founders-20240601"
+    }
+  ]
+}

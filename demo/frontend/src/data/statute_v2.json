@@ -1,0 +1,67 @@
+{
+  "clauses": [
+    {
+      "id": "art_1",
+      "article_no": "Art. 1",
+      "heading": "Company Name and Registered Office",
+      "text": "Under the name \"TechVenture AG\" there exists a company limited by shares pursuant to Articles 620 et seq. of the Swiss Code of Obligations. The registered office of the company is in Zurich.",
+      "tags": ["formation"]
+    },
+    {
+      "id": "art_2",
+      "article_no": "Art. 2",
+      "heading": "Purpose",
+      "text": "The purpose of the company is the development and commercialization of software products and services. The company may establish branches and subsidiaries in Switzerland and abroad, and may acquire, hold and sell participations in other companies.",
+      "tags": ["purpose"]
+    },
+    {
+      "id": "art_3",
+      "article_no": "Art. 3",
+      "heading": "Duration",
+      "text": "The duration of the company is unlimited.",
+      "tags": ["formation"]
+    },
+    {
+      "id": "art_4",
+      "article_no": "Art. 4",
+      "heading": "Share Capital and Capital Band",
+      "text": "The share capital amounts to CHF 100,000 (one hundred thousand Swiss Francs), divided into 1,000 (one thousand) registered shares with a nominal value of CHF 100 (one hundred Swiss Francs) each. The share capital is fully paid in. The Board of Directors is authorized to increase the share capital within a capital band between CHF 50,000 and CHF 200,000 in accordance with Article 653s of the Swiss Code of Obligations.",
+      "tags": ["capital"]
+    },
+    {
+      "id": "art_5",
+      "article_no": "Art. 5",
+      "heading": "Transfer Restrictions",
+      "text": "The transfer of shares requires the prior written approval of the Board of Directors. The Board of Directors may refuse approval for good cause. Good cause exists in particular if the acquirer does not meet the requirements set forth in the shareholder agreement or if the transfer would result in a concentration of shares that is detrimental to the company's interests.",
+      "tags": ["transfer-restriction"]
+    },
+    {
+      "id": "art_6",
+      "article_no": "Art. 6",
+      "heading": "Board of Directors",
+      "text": "The Board of Directors consists of a minimum of three and a maximum of seven members. Members are elected by the General Meeting for a term of three years. Re-election is possible.",
+      "tags": ["board"]
+    },
+    {
+      "id": "art_7",
+      "article_no": "Art. 7",
+      "heading": "Powers of the Board",
+      "text": "The Board of Directors has all powers that are not reserved to the General Meeting by law or these Articles of Association. The Board may delegate the management of the company to one or more directors or to third parties.",
+      "tags": ["board"]
+    },
+    {
+      "id": "art_8",
+      "article_no": "Art. 8",
+      "heading": "Representation",
+      "text": "The company is validly bound by the joint signature of two members of the Board of Directors.",
+      "tags": ["board"]
+    },
+    {
+      "id": "art_9",
+      "article_no": "Art. 9",
+      "heading": "Dividends",
+      "text": "The General Meeting decides on the distribution of profits in accordance with Article 698 of the Swiss Code of Obligations. Dividends are distributed pro rata to the paid-in share capital.",
+      "tags": ["dividend"]
+    }
+  ]
+}
