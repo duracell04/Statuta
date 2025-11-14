@@ -1,0 +1,10 @@
+{
+  "meeting": {
+    "date": "2025-05-20"
+  },
+  "invite": {
+    "sent_at": "2025-04-25",
+    "medium_used": "E-Mail+Receipt",
+    "diffDays": 25
+  }
+}

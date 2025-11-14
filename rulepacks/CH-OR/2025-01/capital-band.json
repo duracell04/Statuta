@@ -1,0 +1,55 @@
+{
+  "id": "CH-OR-AG@2025.01#capital-band",
+  "class": "F",
+  "version": "2025-01",
+  "jurisdiction": "CH",
+  "rules": [
+    {
+      "id": "CAPBAND-01.VALIDITY_PERIOD",
+      "title": "Kapitalband dauert höchstens 5 Jahre",
+      "select": "sectionsById.capitalband.params.validUntil",
+      "op": "exists",
+      "severity": "error",
+      "message": "Das ValidUntil-Datum fehlt für das Kapitalband.",
+      "evidence": ["sectionsById.capitalband.params"]
+    },
+    {
+      "id": "CAPBAND-02.UPPER_LIMIT",
+      "title": "Obergrenze ≤ 150 % Basis",
+      "select": "sectionsById.capitalband.params.upper",
+      "op": "ltePercentOf",
+      "ref": "sectionsById.capitalband.params.base",
+      "percent": 150,
+      "severity": "error",
+      "message": "Kapitalband-Obergrenze überschreitet 150 % der Basis (OR 653s Abs. 2).",
+      "evidence": [
+        "sectionsById.capitalband.params.upper",
+        "sectionsById.capitalband.params.base"
+      ]
+    },
+    {
+      "id": "CAPBAND-03.LOWER_LIMIT",
+      "title": "Untergrenze ≥ 50 % Basis",
+      "select": "sectionsById.capitalband.params.lower",
+      "op": "gtePercentOf",
+      "ref": "sectionsById.capitalband.params.base",
+      "percent": 50,
+      "severity": "error",
+      "message": "Kapitalband-Untergrenze unterschreitet 50 % der Basis (OR 653s Abs. 2).",
+      "evidence": [
+        "sectionsById.capitalband.params.lower",
+        "sectionsById.capitalband.params.base"
+      ]
+    },
+    {
+      "id": "CAPBAND-04.MINIMUM_CAPITAL",
+      "title": "Untergrenze ≥ CHF 100'000",
+      "select": "sectionsById.capitalband.params.lower",
+      "op": "gte",
+      "value": 100000,
+      "severity": "error",
+      "message": "Kapitalband-Untergrenze unterschreitet CHF 100'000 (OR 653u).",
+      "evidence": ["sectionsById.capitalband.params.lower"]
+    }
+  ]
+}

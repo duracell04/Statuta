@@ -1,0 +1,36 @@
+{
+  "id": "CH-OR-AG@2025.01#transfer-restrictions",
+  "class": "F",
+  "version": "2025-01",
+  "jurisdiction": "CH",
+  "rules": [
+    {
+      "id": "VINK-01.CLAUSE_PRESENT",
+      "title": "Vinkulierungs-Klausel vorhanden",
+      "select": "sectionsById.transfer_restrictions.present",
+      "op": "eq",
+      "value": true,
+      "severity": "error",
+      "message": "Es existiert keine statutarische Vinkulierungs-Klausel, obwohl Formvorschriften darauf verweisen.",
+      "evidence": ["sectionsById.transfer_restrictions.text"]
+    },
+    {
+      "id": "VINK-02.CATEGORY_LISTED",
+      "title": "Betroffene Aktienkategorien genannt",
+      "select": "sectionsById.transfer_restrictions.categories",
+      "op": "exists",
+      "severity": "warning",
+      "message": "Die Vinkulierung nennt keine Aktienkategorien (OR 685a).",
+      "evidence": ["sectionsById.transfer_restrictions.categories"]
+    },
+    {
+      "id": "VINK-03.RATIONALE_PRESENT",
+      "title": "Begründung für wichtige Gründe dokumentiert",
+      "select": "sectionsById.transfer_restrictions.rationale",
+      "op": "exists",
+      "severity": "warning",
+      "message": "Es fehlt eine Begründung für die wichtigen Gründe nach Art. 685b Abs. 2 OR.",
+      "evidence": ["sectionsById.transfer_restrictions.rationale"]
+    }
+  ]
+}
