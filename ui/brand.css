@@ -1,0 +1,16 @@
+:root {
+  --statuta-ink:       #0B3D91;
+  --statuta-ink-dark:  #0F172A;
+  --statuta-paper:     #F9FAFB;
+  --statuta-border:    #E5E7EB;
+  --statuta-muted:     #6B7280;
+
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--statuta-paper);
+  color: var(--statuta-ink-dark);
+}

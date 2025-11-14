@@ -1,0 +1,36 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{statuta_brand}[2025/11/14 Statuta brand assets]
+
+\RequirePackage{xcolor}
+\definecolor{statutaInk}{HTML}{0B3D91}
+\definecolor{statutaInkDark}{HTML}{0F172A}
+\definecolor{statutaPaper}{HTML}{F9FAFB}
+\definecolor{statutaBorder}{HTML}{E5E7EB}
+\definecolor{statutaMuted}{HTML}{6B7280}
+
+\RequirePackage{tikz}
+
+\newcommand{\StatutaLogoIcon}[1][1]{%
+  \begin{tikzpicture}[x=1pt,y=-1pt,scale=#1]
+    \begin{scope}[yshift=-28]
+      \filldraw[statutaInk, rounded corners=4.5pt] (8,4) rectangle (24,13);
+      \filldraw[statutaInk, rounded corners=4.5pt] (4,15) rectangle (20,24);
+      \filldraw[statutaInk] (22,6) circle[radius=3.2];
+      \draw[white, line width=1.6pt, line cap=round, line join=round]
+        (20.7,6.0) -- (21.7,7.1) -- (23.8,5.0);
+    \end{scope}
+  \end{tikzpicture}%
+}
+
+\newcommand{\StatutaLogo}[1][]{%
+  \StatutaLogoIcon[1]\,%
+  {\color{statutaInkDark}\textsf{\textbf{Statuta}}}%
+  \if\relax\detokenize{#1}\relax\else\,{\color{statutaMuted}\textsf{#1}}\fi
+}
+
+\newcommand{\StatutaFooter}[1][]{%
+  \par\smallskip
+  {\footnotesize\color{statutaMuted}{Statuta — Git-native form \& process linter for Swiss Statuten%
+  \if\relax\detokenize{#1}\relax\else{} · #1\fi}}%
+  \par\smallskip
+}

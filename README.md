@@ -68,3 +68,14 @@ Each rule pack references a matching note in `docs/legal-notes/` and can be atta
 ## Demo frontend
 
 The React/Vite UI mock now lives in `demo/frontend`. It is unchanged, but decoupled from the rules so contributors can work on the editor separately from legal content.
+
+## Brand & UI
+
+Statuta is meant to feel like a Git-native, Swiss legal tool: calm, precise, evidence-first.
+
+- Name & tagline
+- Logo (SVG & TikZ)
+- Colors, type and UI patterns
+- Tone of voice ("no AI magic", no fake green lights)
+
+See [`docs/BRAND.md`](docs/BRAND.md) for the mini brandbook.
