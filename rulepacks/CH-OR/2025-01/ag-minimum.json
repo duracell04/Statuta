@@ -1,0 +1,47 @@
+{
+  "id": "CH-OR-AG@2025.01#minimum",
+  "class": "F",
+  "version": "2025-01",
+  "jurisdiction": "CH",
+  "rules": [
+    {
+      "id": "AG.MINIMUM-01.PURPOSE_PRESENT",
+      "title": "Statutarischer Zweck ist vorhanden",
+      "select": "sectionsById.purpose.present",
+      "op": "eq",
+      "value": true,
+      "severity": "error",
+      "message": "Der statutarische Zweck fehlt (OR 626 Ziff. 2).",
+      "evidence": ["sectionsById.purpose.text"]
+    },
+    {
+      "id": "AG.MINIMUM-02.CAPITAL_TOTAL",
+      "title": "Aktienkapital mindestens CHF 100'000",
+      "select": "sectionsById.capital.numbers.total",
+      "op": "gte",
+      "value": 100000,
+      "severity": "error",
+      "message": "Das Aktienkapital unterschreitet das gesetzliche Minimum von CHF 100'000 (OR 621 Abs. 1).",
+      "evidence": ["sectionsById.capital.numbers.total", "sectionsById.capital.numbers.currency"]
+    },
+    {
+      "id": "AG.MINIMUM-03.CAPITAL_CURRENCY",
+      "title": "Kapitalwährung ist CHF",
+      "select": "sectionsById.capital.numbers.currency",
+      "op": "eq",
+      "value": "CHF",
+      "severity": "warning",
+      "message": "Das Aktienkapital ist nicht in CHF ausgewiesen (OR 621 Abs. 2).",
+      "evidence": ["sectionsById.capital.numbers.currency"]
+    },
+    {
+      "id": "AG.MINIMUM-04.NOTICES_CHANNEL",
+      "title": "Publikationsorgan bestimmt",
+      "select": "sectionsById.notices.channels",
+      "op": "exists",
+      "severity": "error",
+      "message": "Das Publikationsorgan ist nicht festgelegt (OR 626 Ziff. 3, HRegV 38).",
+      "evidence": ["sectionsById.notices.channels"]
+    }
+  ]
+}

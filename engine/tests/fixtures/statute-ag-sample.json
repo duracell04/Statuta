@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "orgType": "AG",
+    "lang": "de",
+    "authoritativeLang": "de",
+    "docId": "sample-ag-2025"
+  },
+  "sectionsById": {
+    "purpose": {
+      "present": true,
+      "text": "Die Gesellschaft bezweckt die Entwicklung digitaler Rechtsmittel."
+    },
+    "capital": {
+      "numbers": {
+        "total": 120000,
+        "currency": "CHF"
+      },
+      "text": "Das Aktienkapital beträgt CHF 120'000 und ist vollständig liberiert."
+    },
+    "meeting_invite": {
+      "rules": {
+        "allowed_media": ["Brief", "E-Mail+Receipt"],
+        "min_days": 20
+      },
+      "text": "Die Einladung zur Generalversammlung erfolgt mindestens 20 Tage im Voraus."
+    },
+    "capitalband": {
+      "params": {
+        "base": 120000,
+        "upper": 180000,
+        "lower": 100000,
+        "hrEntryDate": "2024-09-01",
+        "validUntil": "2029-08-31"
+      },
+      "rights": {
+        "canRestrictPreemptive": true
+      },
+      "text": "Der Verwaltungsrat ist ermächtigt, das Kapitalband innerhalb von fünf Jahren anzupassen."
+    },
+    "transfer_restrictions": {
+      "present": true,
+      "rationale": "Wichtige Gründe zur Sicherung der Unabhängigkeit",
+      "categories": ["Namenaktien"],
+      "text": "Die Übertragbarkeit von Namenaktien kann aus wichtigen Gründen verweigert werden."
+    },
+    "notices": {
+      "channels": ["SHAB", "Website"],
+      "text": "Publikationsorgan ist das SHAB."
+    }
+  }
+}

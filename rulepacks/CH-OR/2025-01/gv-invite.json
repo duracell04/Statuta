@@ -1,0 +1,36 @@
+{
+  "id": "CH-OR-GV@2025.01#invite",
+  "class": "F",
+  "version": "2025-01",
+  "jurisdiction": "CH",
+  "rules": [
+    {
+      "id": "GV.INVITE-01.MEDIUM_ALLOWED",
+      "title": "Einladungsmedium gemäss Statuten",
+      "select": "facts.invite.medium_used",
+      "op": "inRef",
+      "ref": "sectionsById.meeting_invite.rules.allowed_media",
+      "severity": "error",
+      "message": "Verwendetes Medium ist statutarisch nicht zugelassen.",
+      "evidence": [
+        "facts.invite.medium_used",
+        "sectionsById.meeting_invite.rules.allowed_media"
+      ]
+    },
+    {
+      "id": "GV.INVITE-02.DEADLINE",
+      "title": "Einladung fristgerecht",
+      "select": "facts.invite.diffDays",
+      "op": "gteRef",
+      "ref": "sectionsById.meeting_invite.rules.min_days",
+      "severity": "error",
+      "message": "Einladung unterschreitet die statutarische Mindestfrist (Tage).",
+      "evidence": [
+        "facts.invite.diffDays",
+        "sectionsById.meeting_invite.rules.min_days",
+        "facts.meeting.date",
+        "facts.invite.sent_at"
+      ]
+    }
+  ]
+}
