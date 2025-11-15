@@ -2,6 +2,7 @@ import { Clause } from "@/types/statute";
 import { diffTexts } from "@/utils/diffUtils";
 import type { DiffToken as DiffTokenType } from "@/utils/diffUtils";
 import { Link } from "lucide-react";
+import { format } from "date-fns";
 
 interface DiffViewProps {
   oldClauses: Clause[];
@@ -89,7 +90,7 @@ export const DiffView = ({ oldClauses, newClauses, effectiveDate, status }: Diff
             </span>
             {effectiveDate && (
               <span className="text-sm text-muted-foreground ml-2">
-                - Effective as of {new Date(effectiveDate).toLocaleDateString()}
+                - Effective as of {format(new Date(effectiveDate), "PPP")}
               </span>
             )}
           </div>
