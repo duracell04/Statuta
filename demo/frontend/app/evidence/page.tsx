@@ -1,201 +1,114 @@
 'use client';
 
-import { Suspense } from "react";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Shield, CheckCircle2, ExternalLink } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
 import { StatutaLogo } from "@/components/StatutaLogo";
+import { RevisionList } from "@/components/RevisionList";
+import { DiffView } from "@/components/DiffView";
+import { ClauseChips } from "@/components/ClauseChips";
+import { SignaturePanel } from "@/components/SignaturePanel";
+import { BundleDownload } from "@/components/BundleDownload";
+import { RationaleCard } from "@/components/RationaleCard";
+import { Revision, Statute, SignatureAttestation } from "@/types/statute";
+import { Badge } from "@/components/ui/badge";
 
-const EvidenceContent = () => {
-  const searchParams = useSearchParams();
+import revisionsData from "@/data/revisions.json";
+import statuteV1Data from "@/data/statute_v1.json";
+import statuteV2Data from "@/data/statute_v2.json";
+import signaturesData from "@/data/signatures.json";
 
-  const type = searchParams.get("type") || "QES";
-  const signer = searchParams.get("signer") || "Unknown";
-  const time = searchParams.get("time") || new Date().toISOString();
-  const revId = searchParams.get("revId") || "";
+const HomePage = () => {
+  const [revisions] = useState<Revision[]>(revisionsData as Revision[]);
+  const [selectedRevisionId, setSelectedRevisionId] = useState<string>(revisionsData[0].rev_id);
+  const [activeTag, setActiveTag] = useState<string | null>(null);
 
-  const evidenceData =
-    type === "QES"
-      ? {
-          title: "Qualified Electronic Signature (QES)",
-          icon: Shield,
-          certificate: {
-            issuer: "SwissSign AG",
-            serialNumber: "A7F3B2C8D1E4F5A6",
-            validFrom: "2024-01-01",
-            validUntil: "2025-12-31",
-            algorithm: "RSA-4096 + SHA-256",
-          },
-          verification: {
-            status: "Valid",
-            timestamp: time,
-            standard: "eIDAS compliant",
-            trustAnchor: "Swiss Federal PKI",
-          },
-        }
-      : {
-          title: "Sigstore Transparency Log Entry",
-          icon: CheckCircle2,
-          certificate: {
-            issuer: "Sigstore Public Good",
-            logIndex: "142857",
-            logId: "rekor.sigstore.dev",
-            bundleHash: "sha256:b3f2e1d0c9b8a7f6e5d4c3b2",
-            algorithm: "ECDSA P-256 + SHA-256",
-          },
-          verification: {
-            status: "Verified",
-            timestamp: time,
-            standard: "Sigstore v1.0",
-            trustAnchor: "Fulcio Root CA",
-          },
-        };
+  const selectedRevision = revisions.find((r) => r.rev_id === selectedRevisionId)!;
+  const parentRevision = revisions.find((r) => r.rev_id === selectedRevision.parent_rev);
 
-  const Icon = evidenceData.icon;
+  const oldStatute: Statute = parentRevision ? statuteV1Data : { clauses: [] };
+  const newStatute: Statute = statuteV2Data;
+
+  const signatures: SignatureAttestation[] =
+    (signaturesData as Record<string, SignatureAttestation[]>)[selectedRevisionId] || [];
+
+  const allTags = Array.from(
+    new Set([
+      ...oldStatute.clauses.flatMap((c) => c.tags),
+      ...newStatute.clauses.flatMap((c) => c.tags),
+    ]),
+  );
+
+  const handleTagClick = (tag: string) => {
+    if (activeTag === tag) {
+      setActiveTag(null);
+    } else {
+      setActiveTag(tag);
+      const clause = newStatute.clauses.find((c) => c.tags.includes(tag));
+      if (clause) {
+        const element = document.getElementById(clause.id);
+        element?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-4 py-4 sm:px-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <StatutaLogo className="text-primary" />
-            <Badge variant="secondary" className="text-xs">
-              Demo - Mock Evidence
+            <Badge variant="secondary" className="text-[10px] uppercase tracking-wide sm:text-xs">
+              Demo - Dummy Data Only
             </Badge>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-8 max-w-4xl">
-        <Button variant="ghost" size="sm" className="mb-6" asChild>
-          <Link href="/">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to revisions
-          </Link>
-        </Button>
-
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <Icon className="w-8 h-8 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <CardTitle className="text-2xl mb-2">{evidenceData.title}</CardTitle>
-                  <CardDescription className="text-base">
-                    Signature evidence for revision{" "}
-                    <code className="text-xs font-mono bg-muted px-1 py-0.5 rounded">
-                      {revId.slice(0, 12)}...
-                    </code>
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <span className="text-sm font-medium">Signer:</span>
-                  <p className="text-sm text-muted-foreground mt-1">{signer}</p>
-                </div>
-                <div>
-                  <span className="text-sm font-medium">Timestamp:</span>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {new Date(time).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Certificate Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <dl className="space-y-3">
-                {Object.entries(evidenceData.certificate).map(([key, value]) => (
-                  <div key={key} className="flex flex-col gap-1">
-                    <dt className="text-sm font-medium capitalize">
-                      {key.replace(/([A-Z])/g, " $1").trim()}
-                    </dt>
-                    <dd className="text-sm text-muted-foreground font-mono bg-muted px-2 py-1 rounded">
-                      {value}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Verification Status</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <dl className="space-y-3">
-                {Object.entries(evidenceData.verification).map(([key, value]) => (
-                  <div key={key} className="flex justify-between items-center">
-                    <dt className="text-sm font-medium capitalize">
-                      {key.replace(/([A-Z])/g, " $1").trim()}
-                    </dt>
-                    <dd
-                      className={`text-sm ${
-                        key === "status" ? "font-semibold text-primary" : "text-muted-foreground"
-                      }`}
-                    >
-                      {value}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">External Resources</CardTitle>
-              <CardDescription>In production, these would link to live verification services</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full justify-between" asChild>
-                <a href="#" onClick={(e) => e.preventDefault()}>
-                  <span>{type === "QES" ? "Verify with SwissSign" : "View on Rekor"}</span>
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </Button>
-              <Button variant="outline" className="w-full justify-between" asChild>
-                <a href="#" onClick={(e) => e.preventDefault()}>
-                  <span>Download full certificate chain</span>
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <div className="p-4 bg-muted/50 rounded-lg text-sm text-muted-foreground">
-            <strong>Demo Notice:</strong> This is illustrative evidence data only. In production, this page would
-            display cryptographically verifiable proof fetched from real QES providers or transparency logs like Rekor.
-          </div>
+      <div className="container mx-auto px-4 py-6 sm:px-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <aside className="order-2 space-y-6 lg:order-1 lg:col-span-3">
+            <div className="rounded-lg border border-border bg-card p-4 lg:sticky lg:top-6 lg:border-none lg:bg-transparent lg:p-0">
+              <h2 className="text-sm font-semibold text-foreground mb-3">Revision Timeline</h2>
+              <RevisionList
+                revisions={revisions}
+                selectedRevisionId={selectedRevisionId}
+                onSelectRevision={setSelectedRevisionId}
+              />
+            </div>
+          </aside>
         </div>
+
+
+        <main className="order-1 space-y-6 lg:order-2 lg:col-span-6">
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground mb-3">
+                Filter by clause type
+              </h3>
+              <ClauseChips tags={allTags} activeTag={activeTag} onTagClick={handleTagClick} />
+            </div>
+
+            <div className="bg-card border border-border rounded-lg p-6">
+              <DiffView
+                oldClauses={oldStatute.clauses}
+                newClauses={newStatute.clauses}
+                effectiveDate={selectedRevision.effective_from}
+                status={selectedRevision.status}
+              />
+            </div>
+          </div>
+        </main>
+
+        <aside className="order-3 space-y-6 lg:col-span-3">
+          <div className="grid gap-6 lg:sticky lg:top-6">
+            <RationaleCard rationale={selectedRevision.rationale} documents={selectedRevision.documents} />
+            <SignaturePanel signatures={signatures} />
+            <BundleDownload revision={selectedRevision} statute={newStatute} signatures={signatures} />
+          </div>
+        </aside>
       </div>
     </div>
+
   );
 };
 
-const EvidencePage = () => (
-  <Suspense
-    fallback={
-      <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">
-        Loading evidence...
-      </div>
-    }
-  >
-    <EvidenceContent />
-  </Suspense>
-);
-
-export default EvidencePage;
+export default HomePage;
