@@ -53,20 +53,20 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-4 py-4 sm:px-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <StatutaLogo className="text-primary" />
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="secondary" className="text-[10px] uppercase tracking-wide sm:text-xs">
               Demo - Dummy Data Only
             </Badge>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-6">
-        <div className="grid grid-cols-12 gap-6">
-          <aside className="col-span-3">
-            <div className="sticky top-6">
+      <div className="container mx-auto px-4 py-6 sm:px-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <aside className="order-2 space-y-6 lg:order-1 lg:col-span-3">
+            <div className="rounded-lg border border-border bg-card p-4 lg:sticky lg:top-6 lg:border-none lg:bg-transparent lg:p-0">
               <h2 className="text-sm font-semibold text-foreground mb-3">Revision Timeline</h2>
               <RevisionList
                 revisions={revisions}
@@ -74,12 +74,15 @@ const HomePage = () => {
                 onSelectRevision={setSelectedRevisionId}
               />
             </div>
+            </div>
           </aside>
 
-          <main className="col-span-6">
+          <main className="order-1 space-y-6 lg:order-2 lg:col-span-6">
             <div className="space-y-6">
               <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-3">Filter by clause type</h3>
+                <h3 className="text-sm font-medium text-muted-foreground mb-3">
+                  Filter by clause type
+                </h3>
                 <ClauseChips tags={allTags} activeTag={activeTag} onTagClick={handleTagClick} />
               </div>
 
@@ -94,8 +97,8 @@ const HomePage = () => {
             </div>
           </main>
 
-          <aside className="col-span-3">
-            <div className="sticky top-6 space-y-6">
+          <aside className="order-3 space-y-6 lg:col-span-3">
+            <div className="grid gap-6 lg:sticky lg:top-6">
               <RationaleCard rationale={selectedRevision.rationale} documents={selectedRevision.documents} />
               <SignaturePanel signatures={signatures} />
               <BundleDownload revision={selectedRevision} statute={newStatute} signatures={signatures} />
