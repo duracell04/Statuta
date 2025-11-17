@@ -8,6 +8,7 @@ import { ClauseChips } from "@/components/ClauseChips";
 import { SignaturePanel } from "@/components/SignaturePanel";
 import { BundleDownload } from "@/components/BundleDownload";
 import { RationaleCard } from "@/components/RationaleCard";
+import { PageNavigation } from "@/components/PageNavigation";
 import { Revision, Statute, SignatureAttestation } from "@/types/statute";
 import { Badge } from "@/components/ui/badge";
 
@@ -55,10 +56,13 @@ const HomePage = () => {
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <StatutaLogo className="text-primary" />
-            <Badge variant="secondary" className="text-[10px] uppercase tracking-wide sm:text-xs">
-              Demo - Dummy Data Only
-            </Badge>
+            <div className="flex items-center gap-3">
+              <StatutaLogo className="text-primary" />
+              <Badge variant="secondary" className="text-[10px] uppercase tracking-wide sm:text-xs">
+                Demo - Dummy Data Only
+              </Badge>
+            </div>
+            <PageNavigation />
           </div>
         </div>
       </header>
@@ -73,7 +77,6 @@ const HomePage = () => {
                 selectedRevisionId={selectedRevisionId}
                 onSelectRevision={setSelectedRevisionId}
               />
-            </div>
             </div>
           </aside>
 

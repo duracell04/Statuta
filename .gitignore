@@ -3,4 +3,5 @@ dist/
 out/
 .vite/
 .next/
+**/.next/
 .DS_Store

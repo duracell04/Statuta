@@ -2,6 +2,7 @@
   "name": "statuta-monorepo",
   "private": true,
   "scripts": {
+    "dev": "npm --prefix demo/frontend run dev",
     "test": "tsx engine/tests/run-tests.ts",
     "ci": "npm run build:evidence && npm run test",
     "build:evidence": "tsx scripts/build-evidence.ts"

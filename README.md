@@ -179,7 +179,7 @@ Legal logic in the repo
 
 ## 7. Demo frontend (what it shows)
 
-The demo UI lives in `demo/frontend`. It is a small React + Vite single page app – 100 % frontend-only, using dummy data (no backend, no real rule execution). The current mock focuses on an AG-flavoured scenario, but it conceptually represents entity statutes more broadly.
+The demo UI lives in `demo/frontend`. It is a Next.js App Router sandbox - 100 % frontend-only, using dummy data (no backend, no real rule execution). The current mock focuses on an AG-flavoured scenario, but it conceptually represents entity statutes more broadly.
 
 It currently provides:
 
@@ -194,13 +194,12 @@ It is meant as a clickable movie trailer: running locally, no external dependenc
 From the repo root:
 
 ```
-cd demo/frontend
-npm install
-npm run dev
-# open http://localhost:5173 in your browser
+pnpm install --dir demo/frontend
+pnpm dev
+# (or cd demo/frontend and run pnpm dev)
 ```
 
-Vite auto-bumps ports if 5173/5174 are busy; free the earlier process if you need a fixed port.
+The Next dev server is pinned to port **5173** (to stay aligned with the legacy Vite docs); no extra `-p` flags are needed. Free that port or temporarily tweak `demo/frontend/package.json` if you need to run on a different port.
 
 ---
 
