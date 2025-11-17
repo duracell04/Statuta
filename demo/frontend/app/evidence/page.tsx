@@ -1,245 +1,201 @@
 'use client';
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { format } from "date-fns";
-import { CheckCircle2, ExternalLink, Shield } from "lucide-react";
-import { toast } from "sonner";
-
-import { StatutaLogo } from "@/components/StatutaLogo";
-import { DiffView } from "@/components/DiffView";
-import { BundleDownload } from "@/components/BundleDownload";
-import { RationaleCard } from "@/components/RationaleCard";
-import { PageNavigation } from "@/components/PageNavigation";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Revision, Statute, SignatureAttestation } from "@/types/statute";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Shield, CheckCircle2, ExternalLink } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { StatutaLogo } from "@/components/StatutaLogo";
 
-import revisionsData from "@/data/revisions.json";
-import statuteV1Data from "@/data/statute_v1.json";
-import statuteV2Data from "@/data/statute_v2.json";
-import signaturesData from "@/data/signatures.json";
-
-const formatDateTime = (iso: string) => format(new Date(iso), "MMM d, yyyy HH:mm");
-
-const EvidencePage = () => {
-  const revisions = revisionsData as Revision[];
+const EvidenceContent = () => {
   const searchParams = useSearchParams();
-  const revisionId = searchParams.get("revId") ?? revisions[0]?.rev_id;
-  const signerParam = searchParams.get("signer");
-  const timeParam = searchParams.get("time");
-  const typeParam = searchParams.get("type");
 
-  const selectedRevision =
-    revisions.find((revision) => revision.rev_id === revisionId) ?? revisions[0];
-  const parentRevision = revisions.find((revision) => revision.rev_id === selectedRevision?.parent_rev);
+  const type = searchParams.get("type") || "QES";
+  const signer = searchParams.get("signer") || "Unknown";
+  const time = searchParams.get("time") || new Date().toISOString();
+  const revId = searchParams.get("revId") || "";
 
-  const oldStatute: Statute = parentRevision ? statuteV1Data : { clauses: [] };
-  const newStatute: Statute = statuteV2Data;
+  const evidenceData =
+    type === "QES"
+      ? {
+          title: "Qualified Electronic Signature (QES)",
+          icon: Shield,
+          certificate: {
+            issuer: "SwissSign AG",
+            serialNumber: "A7F3B2C8D1E4F5A6",
+            validFrom: "2024-01-01",
+            validUntil: "2025-12-31",
+            algorithm: "RSA-4096 + SHA-256",
+          },
+          verification: {
+            status: "Valid",
+            timestamp: time,
+            standard: "eIDAS compliant",
+            trustAnchor: "Swiss Federal PKI",
+          },
+        }
+      : {
+          title: "Sigstore Transparency Log Entry",
+          icon: CheckCircle2,
+          certificate: {
+            issuer: "Sigstore Public Good",
+            logIndex: "142857",
+            logId: "rekor.sigstore.dev",
+            bundleHash: "sha256:b3f2e1d0c9b8a7f6e5d4c3b2",
+            algorithm: "ECDSA P-256 + SHA-256",
+          },
+          verification: {
+            status: "Verified",
+            timestamp: time,
+            standard: "Sigstore v1.0",
+            trustAnchor: "Fulcio Root CA",
+          },
+        };
 
-  const signaturesMap = signaturesData as Record<string, SignatureAttestation[]>;
-  const revisionSignatures = selectedRevision
-    ? signaturesMap[selectedRevision.rev_id] ?? []
-    : [];
-
-  const activeSignature =
-    revisionSignatures.find(
-      (signature) =>
-        (!signerParam || signature.signer === signerParam) &&
-        (!timeParam || signature.time === timeParam) &&
-        (!typeParam || signature.type === typeParam),
-    ) ?? revisionSignatures[0];
-
-  const handleOpenEvidence = () => {
-    if (!selectedRevision || !activeSignature) {
-      toast.error("No signature payload is available for this revision.");
-      return;
-    }
-
-    if (activeSignature.evidence_uri?.startsWith("http")) {
-      const opened = window.open(activeSignature.evidence_uri, "_blank", "noopener,noreferrer");
-      if (!opened) {
-        toast.error("Browser blocked the evidence tab. Please allow pop-ups or open the URI manually.");
-      }
-      return;
-    }
-
-    const payload = {
-      revision: selectedRevision,
-      signature: activeSignature,
-      statute: newStatute,
-      generated_at: new Date().toISOString(),
-    };
-
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const opened = window.open(url, "_blank", "noopener,noreferrer");
-    if (!opened) {
-      toast.error("Browser blocked the evidence tab. Please allow pop-ups.");
-      URL.revokeObjectURL(url);
-      return;
-    }
-
-    const revoke = () => URL.revokeObjectURL(url);
-    opened.addEventListener("load", revoke, { once: true });
-    opened.addEventListener("beforeunload", revoke, { once: true });
-  };
+  const Icon = evidenceData.icon;
 
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
-        <div className="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
-          <div className="flex items-center gap-3">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
             <StatutaLogo className="text-primary" />
-            <Badge variant="outline" className="text-[10px] uppercase tracking-wide sm:text-xs">
-              Evidence bundle
+            <Badge variant="secondary" className="text-xs">
+              Demo - Mock Evidence
             </Badge>
           </div>
-          <PageNavigation />
         </div>
       </header>
 
-      <div className="container mx-auto grid gap-6 px-4 py-6 sm:px-6 lg:grid-cols-12">
-        <section className="space-y-6 lg:col-span-8">
+      <div className="container mx-auto px-6 py-8 max-w-4xl">
+        <Button variant="ghost" size="sm" className="mb-6" asChild>
+          <Link href="/">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to revisions
+          </Link>
+        </Button>
+
+        <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-xl">
-                {selectedRevision?.label ?? "Unknown revision"}
-              </CardTitle>
-              {selectedRevision?.effective_from && (
-                <CardDescription>
-                  Effective {formatDateTime(selectedRevision.effective_from)} · Status{" "}
-                  {selectedRevision.status}
-                </CardDescription>
-              )}
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-primary/10 rounded-lg">
+                  <Icon className="w-8 h-8 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-2xl mb-2">{evidenceData.title}</CardTitle>
+                  <CardDescription className="text-base">
+                    Signature evidence for revision{" "}
+                    <code className="text-xs font-mono bg-muted px-1 py-0.5 rounded">
+                      {revId.slice(0, 12)}...
+                    </code>
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm text-muted-foreground">
-              {selectedRevision && (
-                <>
-                  <p>
-                    Revision ID:{" "}
-                    <span className="font-mono text-foreground">{selectedRevision.rev_id}</span>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <span className="text-sm font-medium">Signer:</span>
+                  <p className="text-sm text-muted-foreground mt-1">{signer}</p>
+                </div>
+                <div>
+                  <span className="text-sm font-medium">Timestamp:</span>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {new Date(time).toLocaleString()}
                   </p>
-                  {activeSignature && (
-                    <p>
-                      Viewing attestation by{" "}
-                      <span className="text-foreground">{activeSignature.signer}</span>
-                    </p>
-                  )}
-                </>
-              )}
+                </div>
+              </div>
             </CardContent>
           </Card>
 
-          <div className="rounded-lg border border-border bg-card p-6">
-            {selectedRevision ? (
-              <DiffView
-                oldClauses={oldStatute.clauses}
-                newClauses={newStatute.clauses}
-                effectiveDate={selectedRevision.effective_from}
-                status={selectedRevision.status}
-              />
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Unable to load revision diff without a valid revision id.
-              </p>
-            )}
-          </div>
-
-          {selectedRevision && (
-            <RationaleCard
-              rationale={selectedRevision.rationale}
-              documents={selectedRevision.documents}
-            />
-          )}
-        </section>
-
-        <section className="space-y-6 lg:col-span-4">
           <Card>
             <CardHeader>
-              <CardTitle>Cryptographic evidence</CardTitle>
-              <CardDescription>Signature details sourced from the mock registry</CardDescription>
+              <CardTitle className="text-lg">Certificate Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {activeSignature ? (
-                <>
-                  <div className="flex items-center gap-2 text-sm">
-                    {activeSignature.type === "QES" ? (
-                      <Shield className="h-4 w-4 text-primary" />
-                    ) : (
-                      <CheckCircle2 className="h-4 w-4 text-primary" />
-                    )}
-                    <Badge variant="secondary" className="uppercase">
-                      {activeSignature.type}
-                    </Badge>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">{activeSignature.signer}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Signed {formatDateTime(activeSignature.time)}
-                    </p>
-                  </div>
-                  <div className="rounded-md bg-muted/50 p-3 text-xs">
-                    Evidence URI:
-                    <div className="mt-1 break-all font-mono text-[11px] text-muted-foreground">
-                      {activeSignature.evidence_uri || "Generated locally (demo)"}
-                    </div>
-                  </div>
-                  <Button onClick={handleOpenEvidence} className="w-full">
-                    Open evidence
-                    <ExternalLink className="ml-2 h-4 w-4" />
-                  </Button>
-                </>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  No signature payload supplied for this revision.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          {revisionSignatures.length > 1 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Other attestations</CardTitle>
-                <CardDescription>Select a signer to inspect a different payload</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {revisionSignatures.map((signature) => (
-                  <div
-                    key={`${signature.signer}-${signature.time}`}
-                    className="rounded border border-border px-3 py-2 text-sm"
-                  >
-                    <p className="font-medium">{signature.signer}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDateTime(signature.time)}
-                    </p>
-                    <Link
-                      href={`/evidence?revId=${signature.rev_id}&signer=${encodeURIComponent(
-                        signature.signer,
-                      )}&type=${signature.type}&time=${signature.time}`}
-                      className="mt-1 inline-flex text-xs text-primary hover:underline"
-                    >
-                      View this evidence
-                    </Link>
+            <CardContent>
+              <dl className="space-y-3">
+                {Object.entries(evidenceData.certificate).map(([key, value]) => (
+                  <div key={key} className="flex flex-col gap-1">
+                    <dt className="text-sm font-medium capitalize">
+                      {key.replace(/([A-Z])/g, " $1").trim()}
+                    </dt>
+                    <dd className="text-sm text-muted-foreground font-mono bg-muted px-2 py-1 rounded">
+                      {value}
+                    </dd>
                   </div>
                 ))}
-              </CardContent>
-            </Card>
-          )}
+              </dl>
+            </CardContent>
+          </Card>
 
-          {selectedRevision && (
-            <BundleDownload
-              revision={selectedRevision}
-              statute={newStatute}
-              signatures={revisionSignatures}
-            />
-          )}
-        </section>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Verification Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <dl className="space-y-3">
+                {Object.entries(evidenceData.verification).map(([key, value]) => (
+                  <div key={key} className="flex justify-between items-center">
+                    <dt className="text-sm font-medium capitalize">
+                      {key.replace(/([A-Z])/g, " $1").trim()}
+                    </dt>
+                    <dd
+                      className={`text-sm ${
+                        key === "status" ? "font-semibold text-primary" : "text-muted-foreground"
+                      }`}
+                    >
+                      {value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">External Resources</CardTitle>
+              <CardDescription>In production, these would link to live verification services</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button variant="outline" className="w-full justify-between" asChild>
+                <a href="#" onClick={(e) => e.preventDefault()}>
+                  <span>{type === "QES" ? "Verify with SwissSign" : "View on Rekor"}</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </Button>
+              <Button variant="outline" className="w-full justify-between" asChild>
+                <a href="#" onClick={(e) => e.preventDefault()}>
+                  <span>Download full certificate chain</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <div className="p-4 bg-muted/50 rounded-lg text-sm text-muted-foreground">
+            <strong>Demo Notice:</strong> This is illustrative evidence data only. In production, this page would
+            display cryptographically verifiable proof fetched from real QES providers or transparency logs like Rekor.
+          </div>
+        </div>
       </div>
     </div>
   );
 };
+
+const EvidencePage = () => (
+  <Suspense
+    fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">
+        Loading evidence...
+      </div>
+    }
+  >
+    <EvidenceContent />
+  </Suspense>
+);
 
 export default EvidencePage;
