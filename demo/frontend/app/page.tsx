@@ -53,55 +53,57 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <StatutaLogo className="text-primary" />
-            <Badge variant="secondary" className="text-xs">
-              Demo - Dummy Data Only
-            </Badge>
-          </div>
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-3 py-3 md:px-6 md:py-4">
+          <StatutaLogo className="text-primary" />
+          <Badge variant="secondary" className="text-xs">
+            Demo - Dummy Data Only
+          </Badge>
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-6">
-        <div className="grid grid-cols-12 gap-6">
-          <aside className="col-span-3">
-            <div className="sticky top-6">
-              <h2 className="text-sm font-semibold text-foreground mb-3">Revision Timeline</h2>
-              <RevisionList
-                revisions={revisions}
-                selectedRevisionId={selectedRevisionId}
-                onSelectRevision={setSelectedRevisionId}
-              />
-            </div>
-          </aside>
+      <div
+        className="
+          mx-auto w-full max-w-6xl
+          px-3 py-4
+          flex flex-col gap-4
+          md:px-6 md:py-8
+          md:grid md:grid-cols-[260px,minmax(0,2fr),minmax(0,1.4fr)] md:gap-6
+        "
+      >
+        <section className="order-1 md:order-none md:self-start">
+          <div className="md:sticky md:top-6">
+            <h2 className="mb-3 text-sm font-semibold text-foreground">Revision Timeline</h2>
+            <RevisionList
+              revisions={revisions}
+              selectedRevisionId={selectedRevisionId}
+              onSelectRevision={setSelectedRevisionId}
+            />
+          </div>
+        </section>
 
-          <main className="col-span-6">
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-3">Filter by clause type</h3>
-                <ClauseChips tags={allTags} activeTag={activeTag} onTagClick={handleTagClick} />
-              </div>
+        <section className="order-2 space-y-4 md:order-none md:self-start md:space-y-6">
+          <div>
+            <h3 className="mb-3 text-sm font-medium text-muted-foreground">Filter by clause type</h3>
+            <ClauseChips tags={allTags} activeTag={activeTag} onTagClick={handleTagClick} />
+          </div>
 
-              <div className="bg-card border border-border rounded-lg p-6">
-                <DiffView
-                  oldClauses={oldStatute.clauses}
-                  newClauses={newStatute.clauses}
-                  effectiveDate={selectedRevision.effective_from}
-                  status={selectedRevision.status}
-                />
-              </div>
-            </div>
-          </main>
+          <div className="rounded-lg border border-border bg-card p-3 md:p-4 lg:p-6">
+            <DiffView
+              oldClauses={oldStatute.clauses}
+              newClauses={newStatute.clauses}
+              effectiveDate={selectedRevision.effective_from}
+              status={selectedRevision.status}
+            />
+          </div>
+        </section>
 
-          <aside className="col-span-3">
-            <div className="sticky top-6 space-y-6">
-              <RationaleCard rationale={selectedRevision.rationale} documents={selectedRevision.documents} />
-              <SignaturePanel signatures={signatures} />
-              <BundleDownload revision={selectedRevision} statute={newStatute} signatures={signatures} />
-            </div>
-          </aside>
-        </div>
+        <aside className="order-3 space-y-6 md:order-none md:self-start">
+          <div className="flex flex-col gap-6 md:sticky md:top-6">
+            <RationaleCard rationale={selectedRevision.rationale} documents={selectedRevision.documents} />
+            <SignaturePanel signatures={signatures} />
+            <BundleDownload revision={selectedRevision} statute={newStatute} signatures={signatures} />
+          </div>
+        </aside>
       </div>
     </div>
   );
