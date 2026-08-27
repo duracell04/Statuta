@@ -1,6 +1,9 @@
 node_modules/
-dist/
-out/
-.vite/
 .next/
+out/
+coverage/
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
 .DS_Store
