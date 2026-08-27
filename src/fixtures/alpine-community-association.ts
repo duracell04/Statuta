@@ -1,0 +1,395 @@
+import type { Article, ISODate, StatutaState } from "../domain/types";
+
+export const DEMO_PLANNING_DATE: ISODate = "2027-02-10";
+export const DEMO_ACTIVATION_DATE: ISODate = "2027-03-18";
+
+export const ALPINE_COMMUNITY_ASSOCIATION_IDS = {
+  association: "association-alpine-community",
+  statuteVersions: {
+    historical: "statutes-2024",
+    current: "statutes-2026",
+    revision: "statutes-2027",
+  },
+  generalAssemblies: {
+    historical: "general-assembly-2024",
+    currentAdoption: "general-assembly-2026",
+    revision: "general-assembly-2027",
+  },
+  decisions: {
+    historical: "decision-statutes-2024",
+    currentAdoption: "decision-statutes-2026",
+    revision: "decision-statutes-2027",
+  },
+  evidence: {
+    historicalDraft: "evidence-draft-statutes-2024",
+    historicalMinutes: "evidence-minutes-2024",
+    historicalFinal: "evidence-final-statutes-2024",
+    currentDraft: "evidence-draft-statutes-2026",
+    currentMinutes: "evidence-minutes-2026",
+    currentFinal: "evidence-final-statutes-2026",
+    revisionDraft: "evidence-draft-statutes-2027",
+    revisionMinutes: "evidence-minutes-2027",
+    revisionAdoption: "evidence-adoption-record-2027",
+    revisionFinal: "evidence-final-statutes-2027",
+  },
+  articles: {
+    invitation2026: "article-2026-14",
+    agenda2026: "article-2026-15",
+    amendment2026: "article-2026-21",
+    amendment2027: "article-2027-21",
+  },
+} as const;
+
+const ids = ALPINE_COMMUNITY_ASSOCIATION_IDS;
+
+const articles2024 = [
+  {
+    id: "article-2024-1",
+    lineageId: "article-lineage-1",
+    statuteVersionId: ids.statuteVersions.historical,
+    number: "1",
+    heading: "Name and seat",
+    text: "Under the name Alpine Community Association exists an association pursuant to Articles 60 et seq. of the Swiss Civil Code, with its seat in Bern.",
+  },
+  {
+    id: "article-2024-2",
+    lineageId: "article-lineage-2",
+    statuteVersionId: ids.statuteVersions.historical,
+    number: "2",
+    heading: "Purpose",
+    text: "The Association supports neighbourly exchange, local cultural activities and shared community projects in the Bern region.",
+  },
+  {
+    id: "article-2024-14",
+    lineageId: "article-lineage-14",
+    statuteVersionId: ids.statuteVersions.historical,
+    number: "14",
+    heading: "Invitation",
+    text: "The committee shall send the invitation to every member by postal mail at least 30 calendar days before the General Assembly. The sending date is decisive.",
+  },
+  {
+    id: "article-2024-15",
+    lineageId: "article-lineage-15",
+    statuteVersionId: ids.statuteVersions.historical,
+    number: "15",
+    heading: "Agenda",
+    text: "The invitation shall state the agenda. Any proposed statute amendment must be listed as a separate agenda item.",
+  },
+  {
+    id: "article-2024-21",
+    lineageId: "article-lineage-21",
+    statuteVersionId: ids.statuteVersions.historical,
+    number: "21",
+    heading: "Statute amendments",
+    text: "A statute amendment requires two thirds of the votes cast.",
+  },
+] satisfies readonly Article[];
+
+const articles2026 = [
+  {
+    id: "article-2026-1",
+    lineageId: "article-lineage-1",
+    statuteVersionId: ids.statuteVersions.current,
+    number: "1",
+    heading: "Name and seat",
+    text: "Under the name Alpine Community Association exists an association pursuant to Articles 60 et seq. of the Swiss Civil Code, with its seat in Bern.",
+  },
+  {
+    id: "article-2026-2",
+    lineageId: "article-lineage-2",
+    statuteVersionId: ids.statuteVersions.current,
+    number: "2",
+    heading: "Purpose",
+    text: "The Association supports neighbourly exchange, local cultural activities and shared community projects in the Bern region.",
+  },
+  {
+    id: ids.articles.invitation2026,
+    lineageId: "article-lineage-14",
+    statuteVersionId: ids.statuteVersions.current,
+    number: "14",
+    heading: "Invitation",
+    text: "The committee shall send the invitation to every member by email at least 21 calendar days before the General Assembly. The sending date is decisive.",
+  },
+  {
+    id: ids.articles.agenda2026,
+    lineageId: "article-lineage-15",
+    statuteVersionId: ids.statuteVersions.current,
+    number: "15",
+    heading: "Agenda",
+    text: "The invitation shall state the agenda. Any proposed statute amendment must be listed as a separate agenda item.",
+  },
+  {
+    id: ids.articles.amendment2026,
+    lineageId: "article-lineage-21",
+    statuteVersionId: ids.statuteVersions.current,
+    number: "21",
+    heading: "Statute amendments",
+    text: "A statute amendment requires two thirds of the votes cast. Abstentions are not counted as votes cast.",
+  },
+] satisfies readonly Article[];
+
+const articles2027 = [
+  {
+    id: "article-2027-1",
+    lineageId: "article-lineage-1",
+    statuteVersionId: ids.statuteVersions.revision,
+    number: "1",
+    heading: "Name and seat",
+    text: "Under the name Alpine Community Association exists an association pursuant to Articles 60 et seq. of the Swiss Civil Code, with its seat in Bern.",
+  },
+  {
+    id: "article-2027-2",
+    lineageId: "article-lineage-2",
+    statuteVersionId: ids.statuteVersions.revision,
+    number: "2",
+    heading: "Purpose",
+    text: "The Association supports neighbourly exchange, local cultural activities and shared community projects in the Bern region.",
+  },
+  {
+    id: "article-2027-14",
+    lineageId: "article-lineage-14",
+    statuteVersionId: ids.statuteVersions.revision,
+    number: "14",
+    heading: "Invitation",
+    text: "The committee shall send the invitation to every member by email at least 21 calendar days before the General Assembly. The sending date is decisive.",
+  },
+  {
+    id: "article-2027-15",
+    lineageId: "article-lineage-15",
+    statuteVersionId: ids.statuteVersions.revision,
+    number: "15",
+    heading: "Agenda",
+    text: "The invitation shall state the agenda. Any proposed statute amendment must be listed as a separate agenda item.",
+  },
+  {
+    id: ids.articles.amendment2027,
+    lineageId: "article-lineage-21",
+    statuteVersionId: ids.statuteVersions.revision,
+    number: "21",
+    heading: "Statute amendments and participation",
+    text: "A statute amendment requires two thirds of the votes cast. Abstentions are not counted as votes cast. Members participating by live video conference may exercise the same voting rights as members present at the meeting venue.",
+  },
+] satisfies readonly Article[];
+
+export const alpineCommunityAssociationFixture = {
+  association: {
+    id: ids.association,
+    name: "Alpine Community Association",
+    seat: "Bern",
+    statuteVersionIds: [
+      ids.statuteVersions.historical,
+      ids.statuteVersions.current,
+      ids.statuteVersions.revision,
+    ],
+  },
+  statuteVersions: [
+    {
+      id: ids.statuteVersions.historical,
+      associationId: ids.association,
+      label: "Version 2024",
+      createdOn: "2024-01-22",
+      status: "replaced",
+      articles: articles2024,
+      draftSourceEvidenceId: ids.evidence.historicalDraft,
+      proposedAtGeneralAssemblyId: ids.generalAssemblies.historical,
+      adoptionDecisionId: ids.decisions.historical,
+      adoptionDate: "2024-03-14",
+      effectiveDate: "2024-03-14",
+      finalSourceEvidenceId: ids.evidence.historicalFinal,
+      replacedByVersionId: ids.statuteVersions.current,
+      replacedOn: "2026-03-18",
+    },
+    {
+      id: ids.statuteVersions.current,
+      associationId: ids.association,
+      label: "Version 2026",
+      createdOn: "2026-01-26",
+      status: "in_force",
+      articles: articles2026,
+      draftSourceEvidenceId: ids.evidence.currentDraft,
+      proposedAtGeneralAssemblyId: ids.generalAssemblies.currentAdoption,
+      adoptionDecisionId: ids.decisions.currentAdoption,
+      adoptionDate: "2026-03-12",
+      effectiveDate: "2026-03-18",
+      finalSourceEvidenceId: ids.evidence.currentFinal,
+    },
+    {
+      id: ids.statuteVersions.revision,
+      associationId: ids.association,
+      label: "Version 2027",
+      createdOn: "2027-01-25",
+      status: "adopted",
+      articles: articles2027,
+      draftSourceEvidenceId: ids.evidence.revisionDraft,
+      proposedAtGeneralAssemblyId: ids.generalAssemblies.revision,
+      adoptionDecisionId: ids.decisions.revision,
+      adoptionDate: "2027-03-12",
+      effectiveDate: DEMO_ACTIVATION_DATE,
+      finalSourceEvidenceId: ids.evidence.revisionFinal,
+    },
+  ],
+  generalAssemblies: [
+    {
+      id: ids.generalAssemblies.historical,
+      associationId: ids.association,
+      title: "General Assembly 2024",
+      date: "2024-03-14",
+      governingStatuteVersionId: ids.statuteVersions.historical,
+      agenda: ["Annual report", "Adoption of the 2024 statute version"],
+    },
+    {
+      id: ids.generalAssemblies.currentAdoption,
+      associationId: ids.association,
+      title: "General Assembly 2026",
+      date: "2026-03-12",
+      governingStatuteVersionId: ids.statuteVersions.historical,
+      agenda: ["Annual report", "Adoption of the 2026 statute revision"],
+    },
+    {
+      id: ids.generalAssemblies.revision,
+      associationId: ids.association,
+      title: "General Assembly 2027",
+      date: "2027-03-12",
+      governingStatuteVersionId: ids.statuteVersions.current,
+      agenda: ["Annual report", "Amendment to Article 21"],
+    },
+  ],
+  assemblyRequirements: [
+    {
+      generalAssemblyId: ids.generalAssemblies.revision,
+      governingStatuteVersionId: ids.statuteVersions.current,
+      invitationNotice: {
+        minimumCalendarDays: 21,
+        deadlineEvent: "sent",
+        method: "email",
+        methodRule: "required",
+        source: {
+          statuteVersionId: ids.statuteVersions.current,
+          articleId: ids.articles.invitation2026,
+        },
+      },
+      agenda: {
+        amendmentItemRequired: true,
+        source: {
+          statuteVersionId: ids.statuteVersions.current,
+          articleId: ids.articles.agenda2026,
+        },
+      },
+      statuteAmendmentMajority: {
+        numerator: 2,
+        denominator: 3,
+        basis: "votes_cast",
+        abstentions: "excluded",
+        source: {
+          statuteVersionId: ids.statuteVersions.current,
+          articleId: ids.articles.amendment2026,
+        },
+      },
+    },
+  ],
+  decisions: [
+    {
+      id: ids.decisions.historical,
+      generalAssemblyId: ids.generalAssemblies.historical,
+      proposedStatuteVersionId: ids.statuteVersions.historical,
+      outcome: "approved",
+      decidedOn: "2024-03-14",
+      votes: { yes: 31, no: 2, abstentions: 1 },
+      evidenceReferenceIds: [ids.evidence.historicalMinutes],
+    },
+    {
+      id: ids.decisions.currentAdoption,
+      generalAssemblyId: ids.generalAssemblies.currentAdoption,
+      proposedStatuteVersionId: ids.statuteVersions.current,
+      outcome: "approved",
+      decidedOn: "2026-03-12",
+      votes: { yes: 36, no: 4, abstentions: 1 },
+      evidenceReferenceIds: [ids.evidence.currentMinutes],
+    },
+    {
+      id: ids.decisions.revision,
+      generalAssemblyId: ids.generalAssemblies.revision,
+      proposedStatuteVersionId: ids.statuteVersions.revision,
+      outcome: "approved",
+      decidedOn: "2027-03-12",
+      votes: { yes: 47, no: 9, abstentions: 2 },
+      evidenceReferenceIds: [ids.evidence.revisionMinutes, ids.evidence.revisionAdoption],
+    },
+  ],
+  evidence: [
+    {
+      id: ids.evidence.historicalDraft,
+      type: "draft_statutes",
+      label: "Draft statutes — Version 2024",
+      date: "2024-01-22",
+      reference: "draft-statutes-2024.pdf",
+    },
+    {
+      id: ids.evidence.historicalMinutes,
+      type: "general_assembly_minutes",
+      label: "General Assembly minutes — 14 March 2024",
+      date: "2024-03-14",
+      reference: "minutes-2024.pdf",
+    },
+    {
+      id: ids.evidence.historicalFinal,
+      type: "final_statutes",
+      label: "Final statutes — Version 2024",
+      date: "2024-03-14",
+      reference: "statutes-2024-final.pdf",
+    },
+    {
+      id: ids.evidence.currentDraft,
+      type: "draft_statutes",
+      label: "Draft statutes — Version 2026",
+      date: "2026-01-26",
+      reference: "draft-statutes-2026.pdf",
+    },
+    {
+      id: ids.evidence.currentMinutes,
+      type: "general_assembly_minutes",
+      label: "General Assembly minutes — 12 March 2026",
+      date: "2026-03-12",
+      reference: "minutes-2026.pdf",
+    },
+    {
+      id: ids.evidence.currentFinal,
+      type: "final_statutes",
+      label: "Final statutes — Version 2026",
+      date: "2026-03-18",
+      reference: "statutes-2026-final.pdf",
+    },
+    {
+      id: ids.evidence.revisionDraft,
+      type: "draft_statutes",
+      label: "Draft statutes — Version 2027",
+      date: "2027-01-25",
+      reference: "draft-statutes-2027.pdf",
+    },
+    {
+      id: ids.evidence.revisionMinutes,
+      type: "general_assembly_minutes",
+      label: "General Assembly minutes — 12 March 2027",
+      date: "2027-03-12",
+      reference: "minutes-2027.pdf",
+    },
+    {
+      id: ids.evidence.revisionAdoption,
+      type: "adoption_record",
+      label: "Adoption record — Version 2027",
+      date: "2027-03-12",
+      reference: "adoption-record-2027.pdf",
+    },
+    {
+      id: ids.evidence.revisionFinal,
+      type: "final_statutes",
+      label: "Final statutes — Version 2027",
+      date: DEMO_ACTIVATION_DATE,
+      reference: "statutes-2027-final.pdf",
+    },
+  ],
+} satisfies StatutaState;
+
+export function createCanonicalScenario(): StatutaState {
+  return structuredClone(alpineCommunityAssociationFixture);
+}

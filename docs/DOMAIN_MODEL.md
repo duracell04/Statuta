@@ -1,10 +1,10 @@
 # Statuta Domain Model
 
-This document is authoritative for the concept demonstrator. Code and fixtures must implement these exact association-specific concepts and invariants.
+This document is authoritative for the association-specific concept demonstrator. Code and fixtures implement one Swiss association per `StatutaState`; the model does not generalise governance beyond associations.
 
-## State and identifiers
+## State, identifiers and dates
 
-All identifiers are stable strings. `ISODate` values use the calendar-date form `YYYY-MM-DD`; domain functions validate and receive dates explicitly.
+All identifiers are stable strings. `ISODate` is the calendar-date form `YYYY-MM-DD`. Public functions receive dates explicitly, validate them as real UTC calendar dates and never read the system clock.
 
 ```ts
 type ISODate = string;
@@ -26,13 +26,13 @@ interface StatutaState {
 }
 ```
 
-`StatuteVersion.status` is the only source of truth for the currently in-force version. `Association` therefore does not duplicate a current-version pointer.
+Every statute version and General Assembly in a state belongs to its association. Version IDs are unique, and `Association.statuteVersionIds` is exactly the set of versions in the state. `StatuteVersion.status` is the only source of truth for the current version; `Association` does not duplicate a current-version pointer.
 
 ## Articles and statute versions
 
 ```ts
 interface Article {
-  readonly id: string;                // unique to one version
+  readonly id: string;                // unique within its version
   readonly lineageId: string;         // stable across corresponding versions
   readonly statuteVersionId: string;
   readonly number: string;
@@ -49,28 +49,48 @@ type StatuteVersionStatus =
   | "replaced";
 ```
 
-`StatuteVersion` is a discriminated union. Every version has `id`, `associationId`, `label`, `createdOn` and `articles`. Status-specific metadata is:
+`StatuteVersion` is a discriminated union. Every variant has `id`, `associationId`, `label`, `createdOn` and `articles`. Its status-specific metadata is:
 
 - `draft`: `draftSourceEvidenceId`;
-- `proposed`: draft source plus `proposedAtGeneralAssemblyId`;
-- `adopted`: proposal metadata plus approved `adoptionDecisionId`, `adoptionDate`, `effectiveDate`, and an optional `finalSourceEvidenceId` until activation;
+- `proposed`: draft metadata plus `proposedAtGeneralAssemblyId`;
+- `adopted`: proposal metadata plus `adoptionDecisionId`, `adoptionDate`, `effectiveDate`, and optional `finalSourceEvidenceId`;
 - `rejected`: proposal metadata plus `rejectionDecisionId`;
-- `in_force`: adoption metadata and a required `finalSourceEvidenceId`;
+- `in_force`: adoption metadata plus required `finalSourceEvidenceId`;
 - `replaced`: in-force metadata plus `replacedByVersionId` and `replacedOn`.
 
-The only lifecycle transitions are:
+The lifecycle is:
 
 ```text
-draft → proposed
-proposed → adopted
-proposed → rejected
-adopted → in_force
-in_force → replaced
+draft -> proposed
+proposed -> adopted
+proposed -> rejected
+adopted -> in_force
+in_force -> replaced
 ```
 
-`transitionStatuteVersion()` handles proposal and decision recording. `activateStatuteVersion()` performs the paired `adopted → in_force` and `in_force → replaced` transition atomically in a new `StatutaState`.
+Proposal and decision recording use this exact transition API:
 
-**Article content and authoritative adoption facts become immutable once a statute version is adopted. Lifecycle metadata may change only through documented transitions.** The public domain API accepts no replacement article content during a lifecycle transition, uses readonly types, never mutates input state and tests preservation of adopted content.
+```ts
+type StatuteTransition =
+  | { readonly to: "proposed"; readonly generalAssemblyId: string }
+  | {
+      readonly to: "adopted";
+      readonly decisionId: string;
+      readonly effectiveDate: ISODate;
+      readonly finalSourceEvidenceId?: string;
+    }
+  | { readonly to: "rejected"; readonly decisionId: string };
+
+transitionStatuteVersion(
+  state: StatutaState,
+  statuteVersionId: string,
+  transition: StatuteTransition,
+): StatutaState;
+```
+
+Draft proposal requires the named association General Assembly and a resolved draft source. Adoption or rejection requires a decision for the same proposal and General Assembly, dated on the assembly date, with the matching outcome. An adopted version's effective date cannot precede its decision date. If an adoption transition supplies a final source, it must resolve to `final_statutes` evidence.
+
+Article content and authoritative adoption facts become immutable at adoption. The transition API accepts no replacement article content, all domain types are readonly, and transition functions return a new state without mutating their input.
 
 ## General Assembly and sourced requirements
 
@@ -117,9 +137,46 @@ interface AssemblyRequirements {
 }
 ```
 
-Every requirement source must resolve to an article belonging to `governingStatuteVersionId`, and that ID must match the assembly's `governingStatuteVersionId`. The canonical 2027 General Assembly is governed by the 2026 statute version.
+An assembly has exactly one requirements record. Its governing version must have been in force on the assembly date. Every requirement source must name that same version and resolve to one of its version-specific articles. The canonical 2027 General Assembly is governed by the 2026 statute version.
 
-`calculateInvitationDeadline()` subtracts the minimum notice period as UTC calendar days. The canonical inputs `2027-03-12` and `21` produce `2027-02-19`; that result is never stored in the fixture. `validateNoticeMethod()` applies the documented required/permitted method. `getStatuteAmendmentMajority()` preserves the ratio, basis, abstention treatment and source. `doesDecisionMeetRequiredMajority()` evaluates vote counts using exact integer arithmetic and excludes abstentions as specified.
+The requirement API is:
+
+```ts
+getAssemblyRequirements(
+  state: StatutaState,
+  generalAssemblyId: string,
+): AssemblyRequirements;
+
+calculateInvitationDeadline(
+  assemblyDate: ISODate,
+  notice: InvitationNoticeRequirement,
+): ISODate;
+
+validateNoticeMethod(
+  method: InvitationNoticeRequirement["method"],
+  notice: InvitationNoticeRequirement,
+): boolean;
+
+getStatuteAmendmentMajority(
+  requirements: AssemblyRequirements,
+): MajorityRequirement;
+
+doesDecisionMeetRequiredMajority(
+  decision: StatuteAmendmentDecision,
+  majority: MajorityRequirement,
+): boolean;
+
+getNextRequiredAction(
+  assembly: GeneralAssembly,
+  requirements: AssemblyRequirements,
+  asOfDate: ISODate,
+  invitation?: InvitationRecord,
+): NextRequiredAction;
+```
+
+`calculateInvitationDeadline()` subtracts a non-negative whole number of UTC calendar days. The canonical inputs `2027-03-12` and `21` derive `2027-02-19`; the result is not stored in the fixture. `validateNoticeMethod()` accepts the modeled method only. Majority evaluation uses exact integer arithmetic over `yes + no`, requires at least one vote cast and excludes abstentions.
+
+`getNextRequiredAction()` returns `send_invitation` when no invitation is recorded, `correct_invitation_method` when its method is invalid, and otherwise `hold_general_assembly`. Invitation actions carry their source requirement. Their due date is the derived invitation deadline; the assembly action is due on the assembly date. A due date becomes overdue only when `asOfDate` is later than it.
 
 ## Decisions and evidence
 
@@ -151,21 +208,51 @@ interface EvidenceReference {
 }
 ```
 
-Evidence references identify synthetic documents; they do not represent uploads, signatures, hashes or storage objects.
+Evidence references identify synthetic documents; they do not represent uploads, signatures, hashes or storage objects. Activation requires the approved decision's evidence list to be nonempty and every referenced record to resolve. It does not impose a minutes-specific evidence type. The adopted version separately names a resolved `final_statutes` record as its final source.
 
 ## Lookup, comparison and activation
 
-`getStatuteVersionInForceOn()` resolves the version whose effective/replacement interval contains an explicit date and fails if history is ambiguous. `getCurrentStatuteVersion()` requires exactly one version with status `in_force`.
+```ts
+getCurrentStatuteVersion(state: StatutaState): InForceStatuteVersion;
 
-`compareStatuteVersions()` pairs articles by `lineageId` and returns `changed`, `unchanged`, `added` or `removed`. It does not infer splits, merges or renumbering. A small word-level diff is presentation support for paired changed articles only.
+getStatuteVersionInForceOn(
+  state: StatutaState,
+  associationId: string,
+  date: ISODate,
+): InForceStatuteVersion | ReplacedStatuteVersion;
 
-`canActivateStatuteVersion()` returns an eligibility result and reasons. Activation requires all of the following:
+compareStatuteVersions(
+  previousVersion: StatuteVersion,
+  nextVersion: StatuteVersion,
+): ArticleComparison[];
 
-1. the target version is `adopted` through an approved decision;
-2. the decision references that exact version;
-3. every referenced decision evidence record exists and at least one record is General Assembly minutes;
-4. the final statute source exists and is a final-statutes record;
-5. the explicit activation date is on or after the intended effective date;
-6. exactly one current `in_force` version belongs to the association and can be replaced.
+canActivateStatuteVersion(
+  state: StatutaState,
+  statuteVersionId: string,
+  activationDate: ISODate,
+): ActivationCheck;
 
-`activateStatuteVersion()` either fails without changing state or returns one new state where the previous version is `replaced`, the adopted version is `in_force`, the previous version references its replacement, and decision, evidence and article content remain intact. Reloading the interface restores the canonical fixture.
+activateStatuteVersion(
+  state: StatutaState,
+  statuteVersionId: string,
+  activationDate: ISODate,
+): StatutaState;
+```
+
+`getCurrentStatuteVersion()` requires exactly one `in_force` version. `getStatuteVersionInForceOn()` considers `in_force` and `replaced` versions only and requires exactly one match. Validity intervals are half-open: a replaced version applies on `effectiveDate <= date < replacedOn`; the current version applies from `effectiveDate` onward. A replaced interval must have `effectiveDate < replacedOn`.
+
+`compareStatuteVersions()` requires both versions to belong to the same association, validates unique version-specific article IDs and lineages, and pairs articles by `lineageId`. It returns `changed`, `unchanged`, `added` or `removed`; it does not infer splits, merges or renumbering. Word-level diffing is presentation support for paired changed articles only.
+
+Activation requires all of the following:
+
+1. the target is `adopted` and names an approved decision;
+2. that decision references the target and the target's proposal General Assembly;
+3. the adoption date, decision date and General Assembly date match;
+4. the decision has at least one evidence reference and every reference resolves;
+5. the target's final source resolves to `final_statutes` evidence;
+6. the explicit activation date is on or after the target's effective date;
+7. exactly one current `in_force` version exists;
+8. the proposal General Assembly was governed by that current version;
+9. the target's effective date is strictly after both the General Assembly date and the current version's effective date.
+
+`activateStatuteVersion()` performs the paired `adopted -> in_force` and current `in_force -> replaced` transition atomically. It either throws without changing the input or returns one new state. The prior version gets `replacedByVersionId` and `replacedOn` equal to the target's effective date; the target retains its adoption metadata and becomes the sole current version. Decisions, evidence and article content remain intact. Reloading the interface restores the canonical fixture.
