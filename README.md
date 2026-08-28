@@ -19,7 +19,7 @@ All dates, requirement sources, comparisons and lifecycle transitions are derive
 
 ## Local development
 
-Use Node.js 20 and pnpm 10.
+Use Node.js 24 and pnpm 10.
 
 ```bash
 pnpm install
