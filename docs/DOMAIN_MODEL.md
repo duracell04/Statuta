@@ -137,7 +137,7 @@ interface AssemblyRequirements {
 }
 ```
 
-An assembly has exactly one requirements record. Its governing version must have been in force on the assembly date. Every requirement source must name that same version and resolve to one of its version-specific articles. The canonical 2027 General Assembly is governed by the 2026 statute version.
+`getAssemblyRequirements()` requires exactly one requirements record for the named assembly. The canonical planning assembly has one; historical assemblies may remain as version-history anchors without modeled operational requirements. The assembly's governing version must have been in force on its date. Every requirement source must name that same version and resolve to one of its version-specific articles. The canonical 2027 General Assembly is governed by the 2026 statute version.
 
 The requirement API is:
 
