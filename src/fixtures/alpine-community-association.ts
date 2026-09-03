@@ -49,7 +49,7 @@ const articles2024 = [
     statuteVersionId: ids.statuteVersions.historical,
     number: "1",
     heading: "Name and seat",
-    text: "Under the name Alpine Community Association exists an association pursuant to Articles 60 et seq. of the Swiss Civil Code, with its seat in Bern.",
+    text: "Under the name Verein Quartierleben Zürich exists an association pursuant to Articles 60 et seq. of the Swiss Civil Code, with its seat in Zürich.",
   },
   {
     id: "article-2024-2",
@@ -57,7 +57,7 @@ const articles2024 = [
     statuteVersionId: ids.statuteVersions.historical,
     number: "2",
     heading: "Purpose",
-    text: "The Association supports neighbourly exchange, local cultural activities and shared community projects in the Bern region.",
+    text: "The Association supports neighbourly exchange, local cultural activities and shared community projects in the Zürich region.",
   },
   {
     id: "article-2024-14",
@@ -92,7 +92,7 @@ const articles2026 = [
     statuteVersionId: ids.statuteVersions.current,
     number: "1",
     heading: "Name and seat",
-    text: "Under the name Alpine Community Association exists an association pursuant to Articles 60 et seq. of the Swiss Civil Code, with its seat in Bern.",
+    text: "Under the name Verein Quartierleben Zürich exists an association pursuant to Articles 60 et seq. of the Swiss Civil Code, with its seat in Zürich.",
   },
   {
     id: "article-2026-2",
@@ -100,7 +100,7 @@ const articles2026 = [
     statuteVersionId: ids.statuteVersions.current,
     number: "2",
     heading: "Purpose",
-    text: "The Association supports neighbourly exchange, local cultural activities and shared community projects in the Bern region.",
+    text: "The Association supports neighbourly exchange, local cultural activities and shared community projects in the Zürich region.",
   },
   {
     id: ids.articles.invitation2026,
@@ -135,7 +135,7 @@ const articles2027 = [
     statuteVersionId: ids.statuteVersions.revision,
     number: "1",
     heading: "Name and seat",
-    text: "Under the name Alpine Community Association exists an association pursuant to Articles 60 et seq. of the Swiss Civil Code, with its seat in Bern.",
+    text: "Under the name Verein Quartierleben Zürich exists an association pursuant to Articles 60 et seq. of the Swiss Civil Code, with its seat in Zürich.",
   },
   {
     id: "article-2027-2",
@@ -143,7 +143,7 @@ const articles2027 = [
     statuteVersionId: ids.statuteVersions.revision,
     number: "2",
     heading: "Purpose",
-    text: "The Association supports neighbourly exchange, local cultural activities and shared community projects in the Bern region.",
+    text: "The Association supports neighbourly exchange, local cultural activities and shared community projects in the Zürich region.",
   },
   {
     id: "article-2027-14",
@@ -174,8 +174,8 @@ const articles2027 = [
 export const alpineCommunityAssociationFixture = {
   association: {
     id: ids.association,
-    name: "Alpine Community Association",
-    seat: "Bern",
+    name: "Verein Quartierleben Zürich",
+    seat: "Zürich",
     statuteVersionIds: [
       ids.statuteVersions.historical,
       ids.statuteVersions.current,

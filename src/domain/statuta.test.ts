@@ -106,6 +106,23 @@ test("the 2027 General Assembly is governed by the 2026 statute version", () => 
   );
 });
 
+test("the canonical fixture uses one consistent Verein Quartierleben Zürich identity", () => {
+  const state = createCanonicalScenario();
+
+  assert.equal(state.association.name, "Verein Quartierleben Zürich");
+  assert.equal(state.association.seat, "Zürich");
+
+  for (const version of state.statuteVersions) {
+    const identityArticle = version.articles.find(
+      (article) => article.lineageId === "article-lineage-1",
+    );
+
+    assert.ok(identityArticle, `Expected an identity article in ${version.label}.`);
+    assert.ok(identityArticle.text.includes(state.association.name));
+    assert.ok(identityArticle.text.includes(state.association.seat));
+  }
+});
+
 test("statute validity intervals use inclusive effective and exclusive replacement dates", () => {
   const state = createCanonicalScenario();
 
@@ -585,6 +602,58 @@ test("activation atomically replaces the current version and preserves authority
   assert.deepEqual(activated.evidence, state.evidence);
 });
 
+test("activation preserves the 2026 to 2027 comparison and 2027 assembly provenance", () => {
+  const state = createCanonicalScenario();
+  const currentBeforeActivation = getCurrentStatuteVersion(state);
+  const revisionBeforeActivation = findAdoptedRevision(state);
+  const comparisonBeforeActivation = compareStatuteVersions(
+    currentBeforeActivation,
+    revisionBeforeActivation,
+  );
+  const assembly = state.generalAssemblies.find(
+    (item) => item.id === ids.generalAssemblies.revision,
+  );
+  assert.ok(assembly);
+
+  const activated = activateStatuteVersion(
+    state,
+    ids.statuteVersions.revision,
+    DEMO_ACTIVATION_DATE,
+  );
+  const comparisonBase = findVersion(activated, ids.statuteVersions.current);
+  const currentAfterActivation = getCurrentStatuteVersion(activated);
+
+  assert.equal(comparisonBase.status, "replaced");
+  assert.equal(currentAfterActivation.id, ids.statuteVersions.revision);
+  assert.deepEqual(
+    compareStatuteVersions(comparisonBase, currentAfterActivation),
+    comparisonBeforeActivation,
+  );
+  assert.equal(
+    getStatuteVersionInForceOn(
+      activated,
+      activated.association.id,
+      assembly.date,
+    ).id,
+    ids.statuteVersions.current,
+  );
+
+  const requirements = getAssemblyRequirements(activated, assembly.id);
+  const sources = [
+    requirements.invitationNotice.source,
+    requirements.agenda.source,
+    ...(requirements.quorum ? [requirements.quorum.source] : []),
+    requirements.statuteAmendmentMajority.source,
+  ];
+
+  assert.equal(requirements.governingStatuteVersionId, ids.statuteVersions.current);
+  assert.ok(
+    sources.every(
+      (source) => source.statuteVersionId === ids.statuteVersions.current,
+    ),
+  );
+});
+
 test("a failed activation is atomic and leaves the input state unchanged", () => {
   const state = createCanonicalScenario();
   const withoutEvidence: StatutaState = {
@@ -654,6 +723,36 @@ test("article comparison classifies stable lineages as unchanged, changed, added
     "previous-stable");
   assert.equal(comparisons.find((item) => item.lineageId === "stable")?.nextArticle?.id,
     "next-stable");
+});
+
+test("the canonical revision changes only Article 21", () => {
+  const state = createCanonicalScenario();
+  const comparisons = compareStatuteVersions(
+    getCurrentStatuteVersion(state),
+    findAdoptedRevision(state),
+  );
+
+  assert.equal(comparisons.length, 5);
+  assert.deepEqual(
+    comparisons
+      .filter((comparison) => comparison.status === "changed")
+      .map((comparison) => comparison.nextArticle?.number),
+    ["21"],
+  );
+  assert.deepEqual(
+    comparisons
+      .filter((comparison) => comparison.status === "unchanged")
+      .map((comparison) => comparison.nextArticle?.number),
+    ["1", "2", "14", "15"],
+  );
+  assert.equal(
+    comparisons.filter((comparison) => comparison.status === "added").length,
+    0,
+  );
+  assert.equal(
+    comparisons.filter((comparison) => comparison.status === "removed").length,
+    0,
+  );
 });
 
 test("the complete draft-to-activation workflow succeeds without changing adopted content", () => {

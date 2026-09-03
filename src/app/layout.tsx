@@ -4,10 +4,10 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 const productSentence =
-  "Statuta helps Swiss associations understand which statutes currently apply, what those statutes require for the next General Assembly, what was decided, and which statute version becomes valid afterwards.";
+  "Statuta keeps an association's statutes, version changes, and article-sourced General Assembly requirements together.";
 
 export const metadata: Metadata = {
-  title: "Statuta · Association governance workflow",
+  title: "Statuta · Association statutes",
   description: productSentence,
   icons: {
     icon: [
