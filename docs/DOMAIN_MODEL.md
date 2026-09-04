@@ -23,16 +23,19 @@ interface StatutaState {
   readonly assemblyRequirements: readonly AssemblyRequirements[];
   readonly decisions: readonly StatuteAmendmentDecision[];
   readonly evidence: readonly EvidenceReference[];
+  readonly legalReviews: readonly LegalReview[];
 }
 ```
 
 Every statute version and General Assembly in a state belongs to its association. Version IDs are unique, and `Association.statuteVersionIds` is exactly the set of versions in the state. `StatuteVersion.status` is the only source of truth for the current version; `Association` does not duplicate a current-version pointer.
 
+Locale is presentation state rather than association authority state. The same canonical identifiers, versions, dates, requirements, decisions, evidence and lifecycle state therefore serve every locale.
+
 ## Articles and statute versions
 
 ```ts
 interface Article {
-  readonly id: string;                // unique within its version
+  readonly id: string;                // unique across the state
   readonly lineageId: string;         // stable across corresponding versions
   readonly statuteVersionId: string;
   readonly number: string;
@@ -48,6 +51,19 @@ type StatuteVersionStatus =
   | "in_force"
   | "replaced";
 ```
+
+Each canonical 2024, 2026 and 2027 version contains exactly 21 articles numbered 1–21 in order. Article IDs are unique and version-specific; the corresponding article keeps one stable lineage across all versions. The canonical German sequence is: Name und Sitz; Zweck; Mittel und Haftung; Mitgliedschaft; Aufnahme; Austritt; Ausschluss; Rechte und Pflichten der Mitglieder; Organe des Vereins; Zusammensetzung und Wahl des Vorstands; Aufgaben des Vorstands, Vertretung und Zeichnungsberechtigung; Generalversammlung; Befugnisse der Generalversammlung; Einladung; Traktanden; Abstimmungen und Wahlen; Protokoll; Geschäftsjahr und Rechnungslegung; Revision; Auflösung; Statutenänderungen.
+
+The version history is deliberately narrow:
+
+| Comparison | Changed article | Unchanged articles |
+| --- | --- | ---: |
+| 2024 → 2026 | Article 14 changes from postal invitation with 30 calendar days' notice to email with 21 calendar days' notice. | 20 |
+| 2026 → 2027 | Article 21 removes `sowie der Zustimmung der Stiftung Quartierleben Zürich`. | 20 |
+
+Article 21 is otherwise identical across 2024 and 2026: `Statutenänderungen bedürfen einer Mehrheit von zwei Dritteln der abgegebenen Stimmen sowie der Zustimmung der Stiftung Quartierleben Zürich. Stimmenthaltungen gelten nicht als abgegebene Stimmen.` In 2027 it reads: `Statutenänderungen bedürfen einer Mehrheit von zwei Dritteln der abgegebenen Stimmen. Stimmenthaltungen gelten nicht als abgegebene Stimmen.`
+
+German is the canonical authored source language used by domain comparison and workflow logic. A typed presentation-content layer supplies complete, idiomatic German, French, Italian and English renderings without changing article identities or domain facts. The routes `/de`, `/fr`, `/it` and `/en` use `de-CH`, `fr-CH`, `it-CH` and `en-CH` respectively for language metadata and date formatting; `/` redirects to `/de`. Language switching preserves the current destination and normal client-side demonstrator state.
 
 `StatuteVersion` is a discriminated union. Every variant has `id`, `associationId`, `label`, `createdOn` and `articles`. Its status-specific metadata is:
 
@@ -177,6 +193,30 @@ getNextRequiredAction(
 `calculateInvitationDeadline()` subtracts a non-negative whole number of UTC calendar days. The canonical inputs `2027-03-12` and `21` derive `2027-02-19`; the result is not stored in the fixture. `validateNoticeMethod()` accepts the modeled method only. Majority evaluation uses exact integer arithmetic over `yes + no`, requires at least one vote cast and excludes abstentions.
 
 `getNextRequiredAction()` returns `send_invitation` when no invitation is recorded, `correct_invitation_method` when its method is invalid, and otherwise `hold_general_assembly`. Invitation actions carry their source requirement. Their due date is the derived invitation deadline; the assembly action is due on the assembly date. A due date becomes overdue only when `asOfDate` is later than it.
+
+## Fixed legal review
+
+```ts
+type LegalReviewConclusion =
+  "foundation_consent_not_required_for_removal_of_same_consent_reservation";
+
+interface LegalReview {
+  readonly id: string;
+  readonly associationId: string;
+  readonly affectedArticle: RequirementSource;
+  readonly proposedArticle: RequirementSource;
+  readonly caseNumber: string;
+  readonly decisionDate: ISODate;
+  readonly consideration: string;
+  readonly legalBases: readonly string[];
+  readonly sourceUrl: string;
+  readonly conclusion: LegalReviewConclusion;
+}
+```
+
+The demonstrator contains one typed, curated legal review linked to the affected 2026 Article 21 and proposed 2027 Article 21. It records case number `5A_449/2025`, decision date `2025-12-05`, consideration `3.5`, the [official judgment](https://search.bger.ch/ext/eurospider/live/de/php/aza/http/index.php?highlight_docid=aza%3A%2F%2F05-12-2025-5A_449-2025&lang=de&type=show_document&zoom=) and the legal bases Art. 27 Abs. 2 ZGB, Art. 63 ZGB and Art. 20 OR. Its localized explanation preserves one precise conclusion: the Federal Supreme Court left open whether a third-party approval right covering all statute amendments is generally invalid, but held that a voluntary statutory self-binding must remain removable by statute amendment. Insofar as the consent reservation also makes its own removal dependent on the beneficiary's consent, it is void; foundation consent is therefore not required for this specific amendment.
+
+This curated review is the sole authority in the demonstrator for that case-specific conclusion. It is separate from minutes, adoption records and final statute evidence, and adds no activation condition. The Statutes screen exposes it as a restrained indicator on the affected article, Changes attaches it to the Article 21 diff, and General Assembly presents only the concise applicability note. Automated legal monitoring remains outside the domain model.
 
 ## Decisions and evidence
 

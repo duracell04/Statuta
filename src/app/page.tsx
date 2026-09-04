@@ -1,5 +1,7 @@
-import { StatutaDemonstrator } from "../components/statuta-demonstrator";
+import { redirect } from "next/navigation";
+
+import { defaultLocale, localizedPath } from "../i18n/routing";
 
 export default function Home() {
-  return <StatutaDemonstrator />;
+  redirect(localizedPath(defaultLocale, "statutes"));
 }

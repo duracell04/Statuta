@@ -149,6 +149,22 @@ export interface EvidenceReference {
   readonly reference: string;
 }
 
+export type LegalReviewConclusion =
+  "foundation_consent_not_required_for_removal_of_same_consent_reservation";
+
+export interface LegalReview {
+  readonly id: string;
+  readonly associationId: string;
+  readonly affectedArticle: RequirementSource;
+  readonly proposedArticle: RequirementSource;
+  readonly caseNumber: string;
+  readonly decisionDate: ISODate;
+  readonly consideration: string;
+  readonly legalBases: readonly string[];
+  readonly sourceUrl: string;
+  readonly conclusion: LegalReviewConclusion;
+}
+
 export interface StatutaState {
   readonly association: Association;
   readonly statuteVersions: readonly StatuteVersion[];
@@ -156,6 +172,7 @@ export interface StatutaState {
   readonly assemblyRequirements: readonly AssemblyRequirements[];
   readonly decisions: readonly StatuteAmendmentDecision[];
   readonly evidence: readonly EvidenceReference[];
+  readonly legalReviews: readonly LegalReview[];
 }
 
 export type StatuteTransition =

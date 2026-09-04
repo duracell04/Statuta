@@ -25,11 +25,11 @@ import type {
   StatuteVersion,
 } from "./types";
 import {
-  ALPINE_COMMUNITY_ASSOCIATION_IDS as ids,
+  QUARTIERLEBEN_ASSOCIATION_IDS as ids,
   DEMO_ACTIVATION_DATE,
   DEMO_PLANNING_DATE,
   createCanonicalScenario,
-} from "../fixtures/alpine-community-association";
+} from "../fixtures/quartierleben-association";
 
 function findVersion(state: StatutaState, versionId: string): StatuteVersion {
   const version = state.statuteVersions.find((item) => item.id === versionId);
@@ -92,6 +92,12 @@ function activationFailureCodes(
   ).reasons.map((reason) => reason.code);
 }
 
+function findArticle(version: StatuteVersion, number: string): Article {
+  const article = version.articles.find((item) => item.number === number);
+  assert.ok(article, `Expected Article ${number} in ${version.label}.`);
+  return article;
+}
+
 test("the 2027 General Assembly is governed by the 2026 statute version", () => {
   const state = createCanonicalScenario();
   const assembly = state.generalAssemblies.find(
@@ -104,6 +110,39 @@ test("the 2027 General Assembly is governed by the 2026 statute version", () => 
     getStatuteVersionInForceOn(state, state.association.id, assembly.date).id,
     ids.statuteVersions.current,
   );
+});
+
+test("the 2027 General Assembly preserves every statute-amendment requirement", () => {
+  const state = createCanonicalScenario();
+  const requirements = getAssemblyRequirements(state, ids.generalAssemblies.revision);
+
+  assert.deepEqual(requirements.invitationNotice, {
+    minimumCalendarDays: 21,
+    deadlineEvent: "sent",
+    method: "email",
+    methodRule: "required",
+    source: {
+      statuteVersionId: ids.statuteVersions.current,
+      articleId: ids.articles.invitation2026,
+    },
+  });
+  assert.deepEqual(requirements.agenda, {
+    amendmentItemRequired: true,
+    source: {
+      statuteVersionId: ids.statuteVersions.current,
+      articleId: ids.articles.agenda2026,
+    },
+  });
+  assert.deepEqual(requirements.statuteAmendmentMajority, {
+    numerator: 2,
+    denominator: 3,
+    basis: "votes_cast",
+    abstentions: "excluded",
+    source: {
+      statuteVersionId: ids.statuteVersions.current,
+      articleId: ids.articles.amendment2026,
+    },
+  });
 });
 
 test("the canonical fixture uses one consistent Verein Quartierleben Zürich identity", () => {
@@ -121,6 +160,138 @@ test("the canonical fixture uses one consistent Verein Quartierleben Zürich ide
     assert.ok(identityArticle.text.includes(state.association.name));
     assert.ok(identityArticle.text.includes(state.association.seat));
   }
+});
+
+test("every statute version contains exactly Articles 1 through 21 in order", () => {
+  const state = createCanonicalScenario();
+  const expectedNumbers = Array.from({ length: 21 }, (_, index) => String(index + 1));
+  const allArticleIds = new Set<string>();
+
+  for (const version of state.statuteVersions) {
+    assert.deepEqual(
+      version.articles.map((article) => article.number),
+      expectedNumbers,
+    );
+    assert.equal(version.articles.length, 21);
+    assert.equal(new Set(version.articles.map((article) => article.id)).size, 21);
+
+    for (const article of version.articles) {
+      assert.equal(article.statuteVersionId, version.id);
+      assert.equal(allArticleIds.has(article.id), false, `Duplicate article ID ${article.id}.`);
+      allArticleIds.add(article.id);
+    }
+  }
+
+  assert.equal(allArticleIds.size, 63);
+});
+
+test("article lineages remain stable across all three complete versions", () => {
+  const state = createCanonicalScenario();
+  const expectedLineages = Array.from(
+    { length: 21 },
+    (_, index) => `article-lineage-${index + 1}`,
+  );
+
+  for (const version of state.statuteVersions) {
+    assert.deepEqual(
+      version.articles.map((article) => article.lineageId),
+      expectedLineages,
+    );
+    assert.equal(new Set(version.articles.map((article) => article.lineageId)).size, 21);
+  }
+});
+
+test("the 2024 to 2026 history changes only Article 14", () => {
+  const state = createCanonicalScenario();
+  const comparisons = compareStatuteVersions(
+    findVersion(state, ids.statuteVersions.historical),
+    findVersion(state, ids.statuteVersions.current),
+  );
+
+  assert.equal(comparisons.length, 21);
+  assert.deepEqual(
+    comparisons
+      .filter((comparison) => comparison.status === "changed")
+      .map((comparison) => comparison.nextArticle?.number),
+    ["14"],
+  );
+  assert.equal(
+    comparisons.filter((comparison) => comparison.status === "unchanged").length,
+    20,
+  );
+  assert.equal(comparisons.some((comparison) => comparison.status === "added"), false);
+  assert.equal(comparisons.some((comparison) => comparison.status === "removed"), false);
+});
+
+test("Article 21 removes only the foundation-consent reservation in 2027", () => {
+  const state = createCanonicalScenario();
+  const article2024 = findArticle(
+    findVersion(state, ids.statuteVersions.historical),
+    "21",
+  );
+  const article2026 = findArticle(
+    findVersion(state, ids.statuteVersions.current),
+    "21",
+  );
+  const article2027 = findArticle(
+    findVersion(state, ids.statuteVersions.revision),
+    "21",
+  );
+  const previousText =
+    "Statutenänderungen bedürfen einer Mehrheit von zwei Dritteln der abgegebenen Stimmen sowie der Zustimmung der Stiftung Quartierleben Zürich. Stimmenthaltungen gelten nicht als abgegebene Stimmen.";
+  const nextText =
+    "Statutenänderungen bedürfen einer Mehrheit von zwei Dritteln der abgegebenen Stimmen. Stimmenthaltungen gelten nicht als abgegebene Stimmen.";
+  const removedWording = " sowie der Zustimmung der Stiftung Quartierleben Zürich";
+
+  assert.equal(article2024.text, previousText);
+  assert.equal(article2026.text, previousText);
+  assert.equal(article2027.text, nextText);
+  assert.equal(article2026.text.replace(removedWording, ""), article2027.text);
+});
+
+test("the curated legal review links the affected and proposed Article 21 versions", () => {
+  const state = createCanonicalScenario();
+
+  assert.equal(state.legalReviews.length, 1);
+  const review = state.legalReviews[0];
+  assert.equal(review.id, ids.legalReviews.article21FoundationConsent);
+  assert.equal(review.associationId, ids.association);
+  assert.deepEqual(review.affectedArticle, {
+    statuteVersionId: ids.statuteVersions.current,
+    articleId: ids.articles.amendment2026,
+  });
+  assert.deepEqual(review.proposedArticle, {
+    statuteVersionId: ids.statuteVersions.revision,
+    articleId: ids.articles.amendment2027,
+  });
+  assert.equal(review.caseNumber, "5A_449/2025");
+  assert.equal(review.decisionDate, "2025-12-05");
+  assert.equal(review.consideration, "3.5");
+  assert.deepEqual(review.legalBases, [
+    "Art. 27 Abs. 2 ZGB",
+    "Art. 63 ZGB",
+    "Art. 20 OR",
+  ]);
+  assert.equal(
+    review.sourceUrl,
+    "https://search.bger.ch/ext/eurospider/live/de/php/aza/http/index.php?highlight_docid=aza%3A%2F%2F05-12-2025-5A_449-2025&lang=de&type=show_document&zoom=",
+  );
+  assert.equal(
+    review.conclusion,
+    "foundation_consent_not_required_for_removal_of_same_consent_reservation",
+  );
+
+  const affectedVersion = findVersion(state, review.affectedArticle.statuteVersionId);
+  const proposedVersion = findVersion(state, review.proposedArticle.statuteVersionId);
+  assert.equal(
+    affectedVersion.articles.some((article) => article.id === review.affectedArticle.articleId),
+    true,
+  );
+  assert.equal(
+    proposedVersion.articles.some((article) => article.id === review.proposedArticle.articleId),
+    true,
+  );
+  assert.equal(state.evidence.some((evidence) => evidence.id === review.id), false);
 });
 
 test("statute validity intervals use inclusive effective and exclusive replacement dates", () => {
@@ -732,18 +903,16 @@ test("the canonical revision changes only Article 21", () => {
     findAdoptedRevision(state),
   );
 
-  assert.equal(comparisons.length, 5);
+  assert.equal(comparisons.length, 21);
   assert.deepEqual(
     comparisons
       .filter((comparison) => comparison.status === "changed")
       .map((comparison) => comparison.nextArticle?.number),
     ["21"],
   );
-  assert.deepEqual(
-    comparisons
-      .filter((comparison) => comparison.status === "unchanged")
-      .map((comparison) => comparison.nextArticle?.number),
-    ["1", "2", "14", "15"],
+  assert.equal(
+    comparisons.filter((comparison) => comparison.status === "unchanged").length,
+    20,
   );
   assert.equal(
     comparisons.filter((comparison) => comparison.status === "added").length,

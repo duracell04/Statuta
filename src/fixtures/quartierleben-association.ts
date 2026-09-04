@@ -3,7 +3,7 @@ import type { Article, ISODate, StatutaState } from "../domain/types";
 export const DEMO_PLANNING_DATE: ISODate = "2027-02-10";
 export const DEMO_ACTIVATION_DATE: ISODate = "2027-03-18";
 
-export const ALPINE_COMMUNITY_ASSOCIATION_IDS = {
+export const QUARTIERLEBEN_ASSOCIATION_IDS = {
   association: "association-alpine-community",
   statuteVersions: {
     historical: "statutes-2024",
@@ -32,6 +32,9 @@ export const ALPINE_COMMUNITY_ASSOCIATION_IDS = {
     revisionAdoption: "evidence-adoption-record-2027",
     revisionFinal: "evidence-final-statutes-2027",
   },
+  legalReviews: {
+    article21FoundationConsent: "legal-review-5a-449-2025-article-21",
+  },
   articles: {
     invitation2026: "article-2026-14",
     agenda2026: "article-2026-15",
@@ -40,138 +43,155 @@ export const ALPINE_COMMUNITY_ASSOCIATION_IDS = {
   },
 } as const;
 
-const ids = ALPINE_COMMUNITY_ASSOCIATION_IDS;
+const ids = QUARTIERLEBEN_ASSOCIATION_IDS;
 
-const articles2024 = [
+interface CanonicalArticleContent {
+  readonly number: string;
+  readonly heading: string;
+  readonly text: string;
+}
+
+const ARTICLE_14_2024 =
+  "Der Vorstand lädt die Mitglieder mindestens 30 Kalendertage vor der Generalversammlung schriftlich per Post ein. Massgebend ist das Versanddatum.";
+const ARTICLE_14_2026 =
+  "Der Vorstand lädt die Mitglieder mindestens 21 Kalendertage vor der Generalversammlung per E-Mail ein. Massgebend ist das Versanddatum.";
+const ARTICLE_21_2024_AND_2026 =
+  "Statutenänderungen bedürfen einer Mehrheit von zwei Dritteln der abgegebenen Stimmen sowie der Zustimmung der Stiftung Quartierleben Zürich. Stimmenthaltungen gelten nicht als abgegebene Stimmen.";
+const ARTICLE_21_2027 =
+  "Statutenänderungen bedürfen einer Mehrheit von zwei Dritteln der abgegebenen Stimmen. Stimmenthaltungen gelten nicht als abgegebene Stimmen.";
+
+const canonicalGermanArticles = [
   {
-    id: "article-2024-1",
-    lineageId: "article-lineage-1",
-    statuteVersionId: ids.statuteVersions.historical,
     number: "1",
-    heading: "Name and seat",
-    text: "Under the name Verein Quartierleben Zürich exists an association pursuant to Articles 60 et seq. of the Swiss Civil Code, with its seat in Zürich.",
+    heading: "Name und Sitz",
+    text: "Unter dem Namen «Verein Quartierleben Zürich» besteht ein Verein im Sinne von Art. 60 ff. ZGB mit Sitz in Zürich.",
   },
   {
-    id: "article-2024-2",
-    lineageId: "article-lineage-2",
-    statuteVersionId: ids.statuteVersions.historical,
     number: "2",
-    heading: "Purpose",
-    text: "The Association supports neighbourly exchange, local cultural activities and shared community projects in the Zürich region.",
+    heading: "Zweck",
+    text: "Der Verein fördert das nachbarschaftliche Zusammenleben, lokale Kulturangebote und gemeinschaftliche Projekte in der Stadt Zürich. Er verfolgt keine kommerziellen Zwecke und erstrebt keinen Gewinn.",
   },
   {
-    id: "article-2024-14",
-    lineageId: "article-lineage-14",
-    statuteVersionId: ids.statuteVersions.historical,
+    number: "3",
+    heading: "Mittel und Haftung",
+    text: "Die Mittel des Vereins bestehen aus Mitgliederbeiträgen, Spenden, Zuwendungen und Erträgen aus Veranstaltungen. Für die Verbindlichkeiten des Vereins haftet ausschliesslich das Vereinsvermögen; eine persönliche Haftung der Mitglieder ist ausgeschlossen.",
+  },
+  {
+    number: "4",
+    heading: "Mitgliedschaft",
+    text: "Mitglieder können natürliche und juristische Personen werden, die den Vereinszweck unterstützen.",
+  },
+  {
+    number: "5",
+    heading: "Aufnahme",
+    text: "Über schriftliche Aufnahmegesuche entscheidet der Vorstand. Ein Anspruch auf Aufnahme besteht nicht.",
+  },
+  {
+    number: "6",
+    heading: "Austritt",
+    text: "Der Austritt ist unter Einhaltung einer Frist von 30 Tagen auf Ende des Geschäftsjahres schriftlich gegenüber dem Vorstand zu erklären. Geschuldete Mitgliederbeiträge bleiben geschuldet.",
+  },
+  {
+    number: "7",
+    heading: "Ausschluss",
+    text: "Der Vorstand kann ein Mitglied aus wichtigen Gründen ausschliessen. Das Mitglied ist vorher anzuhören und kann den Entscheid innert 30 Tagen an die Generalversammlung weiterziehen.",
+  },
+  {
+    number: "8",
+    heading: "Rechte und Pflichten der Mitglieder",
+    text: "Die Mitglieder können an den Vereinsaktivitäten und an der Generalversammlung teilnehmen. Sie wahren die Interessen des Vereins und entrichten die von der Generalversammlung festgesetzten Beiträge.",
+  },
+  {
+    number: "9",
+    heading: "Organe des Vereins",
+    text: "Die Organe des Vereins sind die Generalversammlung, der Vorstand und, soweit erforderlich, die Revisionsstelle.",
+  },
+  {
+    number: "10",
+    heading: "Zusammensetzung und Wahl des Vorstands",
+    text: "Der Vorstand besteht aus drei bis sieben Mitgliedern. Die Generalversammlung wählt die Vorstandsmitglieder und das Präsidium für eine Amtsdauer von zwei Jahren; Wiederwahl ist zulässig.",
+  },
+  {
+    number: "11",
+    heading: "Aufgaben des Vorstands, Vertretung und Zeichnungsberechtigung",
+    text: "Der Vorstand führt die Geschäfte, vollzieht die Beschlüsse der Generalversammlung und vertritt den Verein nach aussen. Das Präsidium und ein weiteres Vorstandsmitglied zeichnen kollektiv zu zweien.",
+  },
+  {
+    number: "12",
+    heading: "Generalversammlung",
+    text: "Die ordentliche Generalversammlung findet jährlich statt. Eine ausserordentliche Generalversammlung wird einberufen, wenn der Vorstand oder ein Fünftel der Mitglieder dies verlangt.",
+  },
+  {
+    number: "13",
+    heading: "Befugnisse der Generalversammlung",
+    text: "Die Generalversammlung genehmigt Jahresbericht und Jahresrechnung, entlastet den Vorstand, setzt die Mitgliederbeiträge fest, wählt die Organe und beschliesst über Statutenänderungen sowie die Auflösung des Vereins.",
+  },
+  {
     number: "14",
-    heading: "Invitation",
-    text: "The committee shall send the invitation to every member by postal mail at least 30 calendar days before the General Assembly. The sending date is decisive.",
+    heading: "Einladung",
+    text: ARTICLE_14_2026,
   },
   {
-    id: "article-2024-15",
-    lineageId: "article-lineage-15",
-    statuteVersionId: ids.statuteVersions.historical,
     number: "15",
-    heading: "Agenda",
-    text: "The invitation shall state the agenda. Any proposed statute amendment must be listed as a separate agenda item.",
+    heading: "Traktanden",
+    text: "Die Einladung enthält die Traktanden. Anträge auf Statutenänderung sind als separates Traktandum aufzuführen.",
   },
   {
-    id: "article-2024-21",
-    lineageId: "article-lineage-21",
-    statuteVersionId: ids.statuteVersions.historical,
+    number: "16",
+    heading: "Abstimmungen und Wahlen",
+    text: "Jedes Mitglied hat eine Stimme. Soweit diese Statuten nichts anderes bestimmen, entscheidet die Generalversammlung mit einfachem Mehr der abgegebenen Stimmen. Bei Stimmengleichheit gilt ein Antrag als abgelehnt.",
+  },
+  {
+    number: "17",
+    heading: "Protokoll",
+    text: "Über die Generalversammlung wird ein Protokoll geführt. Es hält insbesondere die Beschlüsse, Wahlergebnisse und Abstimmungszahlen fest und wird vom Präsidium sowie von der protokollführenden Person unterzeichnet.",
+  },
+  {
+    number: "18",
+    heading: "Geschäftsjahr und Rechnungslegung",
+    text: "Das Geschäftsjahr entspricht dem Kalenderjahr. Der Vorstand erstellt für jedes Geschäftsjahr die Jahresrechnung und legt sie der ordentlichen Generalversammlung vor.",
+  },
+  {
+    number: "19",
+    heading: "Revision",
+    text: "Die Generalversammlung wählt eine Revisionsstelle, soweit dies gesetzlich erforderlich ist oder von ihr beschlossen wird. Die Revisionsstelle prüft die Jahresrechnung und erstattet der Generalversammlung Bericht.",
+  },
+  {
+    number: "20",
+    heading: "Auflösung",
+    text: "Die Auflösung des Vereins bedarf einer Mehrheit von zwei Dritteln der abgegebenen Stimmen. Ein verbleibendes Vermögen fällt an eine steuerbefreite Organisation mit ähnlicher Zwecksetzung und darf nicht an die Mitglieder verteilt werden.",
+  },
+  {
     number: "21",
-    heading: "Statute amendments",
-    text: "A statute amendment requires two thirds of the votes cast.",
+    heading: "Statutenänderungen",
+    text: ARTICLE_21_2024_AND_2026,
   },
-] satisfies readonly Article[];
+] satisfies readonly CanonicalArticleContent[];
 
-const articles2026 = [
-  {
-    id: "article-2026-1",
-    lineageId: "article-lineage-1",
-    statuteVersionId: ids.statuteVersions.current,
-    number: "1",
-    heading: "Name and seat",
-    text: "Under the name Verein Quartierleben Zürich exists an association pursuant to Articles 60 et seq. of the Swiss Civil Code, with its seat in Zürich.",
-  },
-  {
-    id: "article-2026-2",
-    lineageId: "article-lineage-2",
-    statuteVersionId: ids.statuteVersions.current,
-    number: "2",
-    heading: "Purpose",
-    text: "The Association supports neighbourly exchange, local cultural activities and shared community projects in the Zürich region.",
-  },
-  {
-    id: ids.articles.invitation2026,
-    lineageId: "article-lineage-14",
-    statuteVersionId: ids.statuteVersions.current,
-    number: "14",
-    heading: "Invitation",
-    text: "The committee shall send the invitation to every member by email at least 21 calendar days before the General Assembly. The sending date is decisive.",
-  },
-  {
-    id: ids.articles.agenda2026,
-    lineageId: "article-lineage-15",
-    statuteVersionId: ids.statuteVersions.current,
-    number: "15",
-    heading: "Agenda",
-    text: "The invitation shall state the agenda. Any proposed statute amendment must be listed as a separate agenda item.",
-  },
-  {
-    id: ids.articles.amendment2026,
-    lineageId: "article-lineage-21",
-    statuteVersionId: ids.statuteVersions.current,
-    number: "21",
-    heading: "Statute amendments",
-    text: "A statute amendment requires two thirds of the votes cast. Abstentions are not counted as votes cast.",
-  },
-] satisfies readonly Article[];
+function createArticles(
+  statuteVersionId: string,
+  year: "2024" | "2026" | "2027",
+  textOverrides: Readonly<Partial<Record<string, string>>> = {},
+): readonly Article[] {
+  return canonicalGermanArticles.map((article) => ({
+    id: `article-${year}-${article.number}`,
+    lineageId: `article-lineage-${article.number}`,
+    statuteVersionId,
+    number: article.number,
+    heading: article.heading,
+    text: textOverrides[article.number] ?? article.text,
+  }));
+}
 
-const articles2027 = [
-  {
-    id: "article-2027-1",
-    lineageId: "article-lineage-1",
-    statuteVersionId: ids.statuteVersions.revision,
-    number: "1",
-    heading: "Name and seat",
-    text: "Under the name Verein Quartierleben Zürich exists an association pursuant to Articles 60 et seq. of the Swiss Civil Code, with its seat in Zürich.",
-  },
-  {
-    id: "article-2027-2",
-    lineageId: "article-lineage-2",
-    statuteVersionId: ids.statuteVersions.revision,
-    number: "2",
-    heading: "Purpose",
-    text: "The Association supports neighbourly exchange, local cultural activities and shared community projects in the Zürich region.",
-  },
-  {
-    id: "article-2027-14",
-    lineageId: "article-lineage-14",
-    statuteVersionId: ids.statuteVersions.revision,
-    number: "14",
-    heading: "Invitation",
-    text: "The committee shall send the invitation to every member by email at least 21 calendar days before the General Assembly. The sending date is decisive.",
-  },
-  {
-    id: "article-2027-15",
-    lineageId: "article-lineage-15",
-    statuteVersionId: ids.statuteVersions.revision,
-    number: "15",
-    heading: "Agenda",
-    text: "The invitation shall state the agenda. Any proposed statute amendment must be listed as a separate agenda item.",
-  },
-  {
-    id: ids.articles.amendment2027,
-    lineageId: "article-lineage-21",
-    statuteVersionId: ids.statuteVersions.revision,
-    number: "21",
-    heading: "Statute amendments and participation",
-    text: "A statute amendment requires two thirds of the votes cast. Abstentions are not counted as votes cast. Members participating by live video conference may exercise the same voting rights as members present at the meeting venue.",
-  },
-] satisfies readonly Article[];
+const articles2024 = createArticles(ids.statuteVersions.historical, "2024", {
+  "14": ARTICLE_14_2024,
+});
+const articles2026 = createArticles(ids.statuteVersions.current, "2026");
+const articles2027 = createArticles(ids.statuteVersions.revision, "2027", {
+  "21": ARTICLE_21_2027,
+});
 
-export const alpineCommunityAssociationFixture = {
+export const quartierlebenAssociationFixture = {
   association: {
     id: ids.association,
     name: "Verein Quartierleben Zürich",
@@ -388,8 +408,30 @@ export const alpineCommunityAssociationFixture = {
       reference: "statutes-2027-final.pdf",
     },
   ],
+  legalReviews: [
+    {
+      id: ids.legalReviews.article21FoundationConsent,
+      associationId: ids.association,
+      affectedArticle: {
+        statuteVersionId: ids.statuteVersions.current,
+        articleId: ids.articles.amendment2026,
+      },
+      proposedArticle: {
+        statuteVersionId: ids.statuteVersions.revision,
+        articleId: ids.articles.amendment2027,
+      },
+      caseNumber: "5A_449/2025",
+      decisionDate: "2025-12-05",
+      consideration: "3.5",
+      legalBases: ["Art. 27 Abs. 2 ZGB", "Art. 63 ZGB", "Art. 20 OR"],
+      sourceUrl:
+        "https://search.bger.ch/ext/eurospider/live/de/php/aza/http/index.php?highlight_docid=aza%3A%2F%2F05-12-2025-5A_449-2025&lang=de&type=show_document&zoom=",
+      conclusion:
+        "foundation_consent_not_required_for_removal_of_same_consent_reservation",
+    },
+  ],
 } satisfies StatutaState;
 
 export function createCanonicalScenario(): StatutaState {
-  return structuredClone(alpineCommunityAssociationFixture);
+  return structuredClone(quartierlebenAssociationFixture);
 }

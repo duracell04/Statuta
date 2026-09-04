@@ -18,7 +18,7 @@
     "start": "next start",
     "lint": "eslint src eslint.config.mjs --max-warnings=0",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "tsx --test src/components/word-diff.test.ts src/domain/statuta.test.ts"
+    "test": "tsx --test src/components/word-diff.test.ts src/domain/statuta.test.ts src/i18n/content.test.ts"
   },
   "dependencies": {
     "next": "16.3.3",
